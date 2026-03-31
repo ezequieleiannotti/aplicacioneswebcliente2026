@@ -1,48 +1,5 @@
 # Aplicaciones Web Clientes 2026
 
-Sitio web básico de una tienda de aplicaciones móviles.
+Clase 1: Instale CV code y open code. le pedi a la IA que me arme un form basico en HTML. luego hice push en la branch /initial, luego de eso cambie el mail en el index y realice otra push. Despues lo pase a la main
 
-## Páginas
-
-- **index.html** - Página principal con menú de navegación y productos destacados
-- **formulario.html** - Formulario de contacto (nombre, email, edad, comentarios)
-- **alta-producto.html** - Formulario de alta de productos (nombre, precio, descripción, categoría, stock)
-- **catalogo.html** - Catálogo de productos con tarjetas
-
-## Estructura
-
-```
-/
-├── index.html
-├── formulario.html
-├── alta-producto.html
-└── catalogo.html
-```
-
-## Formularios
-
-### Formulario de Contacto (formulario.html)
-Campos:
-- `<label>` - Etiqueta de texto para cada campo
-- `<input type="text">` - Campo de texto para nombre
-- `<input type="email">` - Campo para email con validación
-- `<input type="number">` - Campo numérico para edad
-- `<textarea>` - Caja de texto multilínea para comentarios
-- `<button type="submit">` - Botón para enviar
-
-### Alta de Producto (alta-producto.html)
-Campos:
-- `<input type="text">` - Nombre del producto
-- `<input type="number" step="0.01">` - Precio con decimales
-- `<textarea>` - Descripción del producto
-- `<input type="text">` - Categoría
-- `<input type="number">` - Stock (cantidad)
-
-## Catálogo de Productos (catalogo.html)
-
-Tarjetas con:
-- `<h2>` - Título del producto
-- `<img>` - Imagen del producto
-- `<p><strong>` - Precio en negrita
-- `<p>` - Descripción
-- `<a>` - Enlace "Ver más"
+Clase 2: Con IA hice 3 formularios HTML: Alta de producto, Formlario y Catalogo y cada uno lo le agregue algunas card productos y fotos de forma manual. luego eso hice un push a lo brancH
