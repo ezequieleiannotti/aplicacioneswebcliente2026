@@ -9,7 +9,7 @@
 ### 2. Creación de Rama
 - No trabajes sobre la rama `main`. Creá una rama nueva para cada funcionalidad o cambio:
   `git checkout -b feature/add-contact-form`
-
+git push -u origin main
 ### 3. Uso de IA (OpenCode)
 - Usá OpenCode para asistir en tu desarrollo.
 - **Importante:** Leé siempre lo que la IA genera. Si encontrás un error o algo que mejorar, liberalo y documentalo en el PR.
