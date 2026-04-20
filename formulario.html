@@ -1,16 +1,75 @@
-<form action="#" method="POST">
-  <label for="nombre">Nombre:</label><br>
-  <input type="text" id="nombre" name="nombre"><br><br>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto - Tienda App Móvil Premium</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header>
+    <h1>Tienda App Móvil Premium</h1>
+    <div class="header-controls">
+      <nav>
+        <ul>
+          <li><a href="index.html#inicio">Inicio</a></li>
+          <li><a href="index.html#categorias">Categorías</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="formulario.html">Contacto</a></li>
+          <li><a href="alta-producto.html" class="btn-login">Iniciar Sesión</a></li>
+        </ul>
+      </nav>
+      <div class="carrito" aria-label="Carrito de compra" tabindex="0">
+        <button class="carrito-btn" aria-label="Abrir carrito">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="19" cy="20" r="1"/></svg>
+          <span class="badge" aria-label="Cantidad de productos">3</span>
+        </button>
+        <div class="carrito-panel" aria-label="Contenido del carrito">
+          <!-- Carrito vacío o ítems (se maneja con JS luego) -->
+          <div class="carrito-item">
+            <div class="carrito-info">
+              <div class="carrito-titulo">Tu carrito está vacío</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 
-  <label for="email">Email:</label><br>
-  <input type="email" id="email" name="email"><br><br>
+  <main>
+    <div class="form-container">
+      <h2>Ponte en Contacto</h2>
+      <form action="#" method="POST">
+        <div class="form-group">
+          <label for="nombre">Nombre Completo:</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+        </div>
 
-  <label for="edad">Edad:</label><br>
-  <input type="number" id="edad" name="edad"><br><br>
+        <div class="form-group">
+          <label for="email">Dirección de Correo Electrónico (Email):</label>
+          <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+        </div>
 
-  <label for="comentarios">Comentarios:</label><br>
-  <textarea id="comentarios" name="comentarios" rows="4"></textarea><br><br>
+        <div class="form-group">
+          <label for="edad">Edad:</label>
+          <input type="number" id="edad" name="edad" placeholder="Ej: 25">
+        </div>
 
-  <button type="submit">Enviar</button>
-  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPckxTnJw54xA9cxEjXgb7Uhwi3JTAk7LHZA&s" alt="Icono de contacto" width="100">
-</form>
+        <div class="form-group">
+          <label for="comentarios">Tus Comentarios o Dudas:</label>
+          <textarea id="comentarios" name="comentarios" rows="5" placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Enviar Mensaje</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Tienda de Apps Móviles. Todos los derechos reservados.</p>
+    <address>
+      Contacto: <a href="mailto:info@tiendaapps.com">ezequieleiannotti@gmail.com</a>
+    </address>
+  </footer>
+</body>
+</html>
