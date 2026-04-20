@@ -1,82 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comercio de Aplicaciones Móviles</title>
-    <link rel="stylesheet" href="estilos.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comercio de Aplicaciones Móviles</title>
+  <link rel="stylesheet" href="estilos.css">
 </head>
+
 <body>
-    <header>
-        <h1>Tienda de Apps Móviles clase 1</h1>
-        <nav>
-            <ul>
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#categorias">Categorías</a></li>
-                <li><a href="catalogo.html">Catálogo</a></li>
-                <li><a href="formulario.html">Contacto</a></li>
-                <li><a href="alta-producto.html">Alta de Producto</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <main>
-        <section id="inicio">
-            <h2>Bienvenido a nuestra tienda</h2>
-            <p>Descubre las mejores aplicaciones para tu dispositivo móvil.</p>
-        </section>
-        
-        <section id="categorias">
-            <h2>Categorías de Apps</h2>
-            <ul class="categorias-lista">
-                <li>Juegos</li>
-                <li>Productividad</li>
-                <li>Social</li>
-                <li>Educación</li>
-            </ul>
-        </section>
-        
-        <section id="productos">
-            <h2>Apps Destacadas</h2>
-            <div class="productos-grid">
-                <article class="tarjeta">
-                    <img src="https://via.placeholder.com/300x200" alt="App 1">
-                    <h3>App de Ejemplo 1</h3>
-                    <p class="precio">$10.00</p>
-                    <p>Descripción breve de la aplicación.</p>
-                    <a href="catalogo.html" class="btn">Ver más</a>
-                </article>
-                <article class="tarjeta">
-                    <img src="https://via.placeholder.com/300x200" alt="App 2">
-                    <h3>App de Ejemplo 2</h3>
-                    <p class="precio">$15.00</p>
-                    <p>Descripción breve de la aplicación.</p>
-                    <a href="catalogo.html" class="btn">Ver más</a>
-                </article>
-                <article class="tarjeta">
-                    <img src="https://via.placeholder.com/300x200" alt="App 3">
-                    <h3>App de Ejemplo 3</h3>
-                    <p class="precio">$20.00</p>
-                    <p>Descripción breve de la aplicación.</p>
-                    <a href="catalogo.html" class="btn">Ver más</a>
-                </article>
-                <article class="tarjeta">
-                    <img src="https://via.placeholder.com/300x200" alt="App 4">
-                    <h3>App de Ejemplo 4</h3>
-                    <p class="precio">$25.00</p>
-                    <p>Descripción breve de la aplicación.</p>
-                    <a href="catalogo.html" class="btn">Ver más</a>
-                </article>
+  <header>
+    <h1>Tienda App Móvil Premium</h1>
+    <div class="header-controls">
+      <nav>
+        <ul>
+          <li><a href="index.html#inicio">Inicio</a></li>
+          <li><a href="index.html#categorias">Categorías</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="formulario.html">Contacto</a></li>
+          <li><a href="alta-producto.html" class="btn-login">Iniciar Sesión</a></li>
+        </ul>
+      </nav>
+      <div class="carrito" aria-label="Carrito de compra" tabindex="0">
+        <button class="carrito-btn" aria-label="Abrir carrito">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 6h15l-1.5 9h-12z" />
+            <circle cx="9" cy="20" r="1" />
+            <circle cx="19" cy="20" r="1" />
+          </svg>
+          <span class="badge" aria-label="Cantidad de productos">3</span>
+        </button>
+        <div class="carrito-panel" aria-label="Contenido del carrito">
+          <div class="carrito-item">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=300&h=200&auto=format&fit=crop" alt="Producto" />
+            <div class="carrito-info">
+              <div class="carrito-titulo">App de Ejemplo 3</div>
+              <div class="carrito-precio">$20.00</div>
             </div>
-        </section>
-        
-    </main>
-    
-    <footer>
-        <p>&copy; 2026 Tienda de Apps Móviles. Todos los derechos reservados.</p>
-        <address>
-            Contacto: <a href="mailto:info@tiendaapps.com">ezequieleiannotti@gmail.com</a>
-        </address>
-    </footer>
+            <button class="btn-eliminar" aria-label="Eliminar" title="Eliminar" style="margin-left: auto; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; padding: 0 5px;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#ef4444'">✖</button>
+          </div>
+          <div class="carrito-item">
+            <img src="https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg" alt="Producto" />
+            <div class="carrito-info">
+              <div class="carrito-titulo">App de Ejemplo 1</div>
+              <div class="carrito-precio">$10.00</div>
+            </div>
+            <button class="btn-eliminar" aria-label="Eliminar" title="Eliminar" style="margin-left: auto; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; padding: 0 5px;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#ef4444'">✖</button>
+          </div>
+          <div class="carrito-total">Total: $30.00</div>
+          <a href="#" class="btn-principal" style="display: block; width: 100%; margin-top: 1rem; text-align: center; box-sizing: border-box; padding: 0.8rem;">Finalizar Compra</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="inicio" class="hero">
+      <div class="hero-content">
+        <h2>Bienvenido a nuestra tienda</h2>
+        <p>Descubre las mejores aplicaciones para tu dispositivo móvil.</p>
+        <a href="catalogo.html" class="btn btn-principal">Explorar Catálogo</a>
+      </div>
+    </section>
+
+    <section id="categorias">
+      <h2>Categorías Rápidas</h2>
+      <ul class="categorias-lista">
+        <li><span>🎮</span> Juegos</li>
+        <li><span>📈</span> Productividad</li>
+        <li><span>💬</span> Social</li>
+        <li><span>🎓</span> Educación</li>
+      </ul>
+    </section>
+
+    <section id="productos">
+      <h2>Apps Destacadas</h2>
+      <div class="productos-grid">
+        <article class="tarjeta">
+          <img src="https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg" alt="App 1" width="300"
+            height="200" style="object-fit: cover;">
+          <h3>App de Ejemplo 1</h3>
+          <p class="precio">$10.00</p>
+          <p>Descripción breve de la aplicación.</p>
+          <p class="categoria"><strong>Categoría:</strong> Juegos</p>
+          <div class="rating" aria-label="Calificación">★★★★☆</div>
+          <a href="catalogo.html" class="btn">Ver más</a>
+        </article>
+        <article class="tarjeta">
+          <img src="https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg" alt="App 2" width="300" height="200" style="object-fit: cover;">
+          <h3>App de Ejemplo 2</h3>
+          <p class="precio">$15.00</p>
+          <p>Descripción breve de la aplicación.</p>
+          <p class="categoria"><strong>Categoría:</strong> Productividad</p>
+          <div class="rating" aria-label="Calificación">★★★★☆</div>
+          <a href="catalogo.html" class="btn">Ver más</a>
+        </article>
+        <article class="tarjeta">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=300&h=200&auto=format&fit=crop" alt="App 3" width="300" height="200" style="object-fit: cover;">
+          <h3>App de Ejemplo 3</h3>
+          <p class="precio">$20.00</p>
+          <p>Descripción breve de la aplicación.</p>
+          <p class="categoria"><strong>Categoría:</strong> Educación</p>
+          <div class="rating" aria-label="Calificación">★★★★☆</div>
+          <a href="catalogo.html" class="btn">Ver más</a>
+        </article>
+        <article class="tarjeta">
+          <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=300&h=200&auto=format&fit=crop" alt="App 4" width="300" height="200" style="object-fit: cover;">
+          <h3>App de Ejemplo 4</h3>
+          <p class="precio">$25.00</p>
+          <p>Descripción breve de la aplicación.</p>
+          <p class="categoria"><strong>Categoría:</strong> Social</p>
+          <div class="rating" aria-label="Calificación">★★★★☆</div>
+          <a href="catalogo.html" class="btn">Ver más</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Tienda de Apps Móviles. Todos los derechos reservados.</p>
+    <address>
+      Contacto: <a href="mailto:info@tiendaapps.com">ezequieleiannotti@gmail.com</a>
+    </address>
+  </footer>
 </body>
+
 </html>

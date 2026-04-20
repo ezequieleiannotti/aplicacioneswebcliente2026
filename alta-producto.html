@@ -1,23 +1,95 @@
-<form action="#" method="POST">
-  <h2>Alta de Producto</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alta de Producto</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header>
+    <h1>Tienda App Móvil Premium</h1>
+    <div class="header-controls">
+      <nav>
+        <ul>
+          <li><a href="index.html#inicio">Inicio</a></li>
+          <li><a href="index.html#categorias">Categorías</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="formulario.html">Contacto</a></li>
+          <li><a href="alta-producto.html" class="btn-login">Iniciar Sesión</a></li>
+        </ul>
+      </nav>
+      <div class="carrito" aria-label="Carrito de compra" tabindex="0">
+        <button class="carrito-btn" aria-label="Abrir carrito">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="19" cy="20" r="1"/></svg>
+          <span class="badge" aria-label="Cantidad de productos">3</span>
+        </button>
+        <div class="carrito-panel" aria-label="Contenido del carrito">
+          <div class="carrito-item">
+            <img src="https://via.placeholder.com/40" alt="Producto" />
+            <div class="carrito-info">
+              <div class="carrito-titulo">Producto A</div>
+              <div class="carrito-precio">$10.00</div>
+            </div>
+          </div>
+          <div class="carrito-item">
+            <img src="https://via.placeholder.com/40" alt="Producto" />
+            <div class="carrito-info">
+              <div class="carrito-titulo">Producto B</div>
+              <div class="carrito-precio">$15.00</div>
+            </div>
+          </div>
+          <div class="carrito-total">Total: $25.00</div>
+        </div>
+      </div>
+    </div>
+  </header>
 
-  <label for="nombre">Nombre del producto:</label><br>
-  <input type="text" id="nombre" name="nombre"><br><br>
+  <main>
+    <div class="form-container">
+      <h2>Alta de Nuevo Producto</h2>
+      <form action="#" method="POST">
+        <div class="form-group">
+          <label for="nombre">Nombre de la App / Producto:</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej: Super Todo List" required>
+        </div>
 
-  <label for="precio">Precio:</label><br>
-  <input type="number" id="precio" name="precio" step="0.01"><br><br>
+        <div class="form-group">
+          <label for="precio">Precio (USD):</label>
+          <input type="number" id="precio" name="precio" step="0.01" placeholder="Ej: 9.99" required>
+        </div>
 
-  <label for="descripcion">Descripción:</label><br>
-  <textarea id="descripcion" name="descripcion" rows="4"></textarea><br><br>
+        <div class="form-group">
+          <label for="descripcion">Descripción de las funciones:</label>
+          <textarea id="descripcion" name="descripcion" rows="4" placeholder="Detalla qué hace la aplicación..."></textarea>
+        </div>
 
-  <label for="categoria">Categoría:</label><br>
-  <input type="text" id="categoria" name="categoria"><br><br>
+        <div class="form-group">
+          <label for="categoria">Categoría:</label>
+          <select id="categoria" name="categoria">
+            <option value="juegos">Juegos</option>
+            <option value="productividad">Productividad</option>
+            <option value="social">Social</option>
+            <option value="educacion">Educación</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
 
-  <label for="stock">Stock:</label><br>
-  <input type="number" id="stock" name="stock"><br><br>
+        <div class="form-group">
+          <label for="stock">Stock disponible (licencias):</label>
+          <input type="number" id="stock" name="stock" placeholder="Ej: 100">
+        </div>
 
-  <label for="stock">Prueba eze:</label><br>
-  <input type="number" id="stock" name="stock"><br><br>
+        <button type="submit" class="btn-submit">Registrar Producto</button>
+      </form>
+    </div>
+  </main>
 
-  <button type="submit">Registrar Producto</button>
-</form>
+  <footer>
+    <p>&copy; 2026 Tienda de Apps Móviles. Todos los derechos reservados.</p>
+    <address>
+      Contacto: <a href="mailto:info@tiendaapps.com">ezequieleiannotti@gmail.com</a>
+    </address>
+  </footer>
+</body>
+</html>
