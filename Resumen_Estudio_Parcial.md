@@ -575,3 +575,12 @@ En lugar de crear 50 archivos HTML para 50 productos, creamos una sola plantilla
 
 - **Grid de dos columnas**: En `checkout.html`, usamos `display: grid; grid-template-columns: 1fr 350px;`. El formulario de facturación toma la fracción disponible (`1fr`) y el resumen de compra tiene un ancho fijo de `350px`.
 - **Posición "Sticky"**: Al contenedor del resumen de compra le aplicamos `position: sticky; top: 2rem;`. Esto hace que, si el usuario scrollea hacia abajo llenando un formulario largo, el resumen de compra se quede "pegado" en la pantalla siguiéndolo.
+
+### Simulación de Inicio de Sesión (Sin JavaScript)
+
+Creamos un flujo de login simulado utilizando únicamente propiedades nativas de HTML y CSS, sin requerir código JavaScript:
+
+- **Redirección nativa (`<form action="...">`)**: En `login.html`, el formulario utiliza `action="alta-producto.html"` y `method="GET"`. Al presionar el botón de tipo `submit`, el navegador procesa el formulario nativamente y redirige a la página de destino automáticamente. Esto demuestra cómo el HTML base está diseñado para manejar flujos de datos básicos.
+- **Flujo de Navegación Consistente**: Actualizamos todas las barras de navegación (`<nav>`) del sitio para que el botón "Iniciar Sesión" apunte consistentemente a `login.html`.
+- **Cambio de Estado Simulado (Feedback Visual)**: Dentro de `alta-producto.html` (que actúa como el panel de control privado), modificamos el botón superior para que luzca rojo y diga "Cerrar Sesión" (apuntando a `index.html`). Esto crea una ilusión de un sistema con gestión de estados (Logueado / No Logueado) aprovechando únicamente rutas de HTML estático.
+- **Experiencia de Usuario (UX) en CSS**: Aplicamos estilos dedicados (`.login-container`, `.login-form input:focus`) para darle un aspecto moderno. Cuando un usuario hace clic en un input, combinamos `outline: none;` con un `box-shadow` y un cambio de `border-color` para indicarle claramente dónde está escribiendo.
