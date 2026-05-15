@@ -8,7 +8,7 @@ const listadoProductos = [
     id: 1,
     nombre: "App de Ejemplo 1",
     precio: 10.00,
-    descripcion: "Descripción breve de la aplicación.",
+    descripcion: "Sumérgete en un mundo de aventuras épicas con esta innovadora aplicación de juegos. Disfruta de gráficos en alta definición, múltiples niveles desafiantes y un modo multijugador para competir con tus amigos en tiempo real.",
     categoria: "Juegos",
     calificacion: "★★★★☆",
     imagen: "https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg",
@@ -18,7 +18,7 @@ const listadoProductos = [
     id: 2,
     nombre: "App de Ejemplo 2",
     precio: 15.00,
-    descripcion: "Descripción breve de la aplicación.",
+    descripcion: "Optimiza tu tiempo y organiza tus tareas diarias como un profesional. Esta aplicación te permite gestionar proyectos, establecer recordatorios inteligentes y colaborar con tu equipo en la nube.",
     categoria: "Productividad",
     calificacion: "★★★★☆",
     imagen: "https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg",
@@ -28,7 +28,7 @@ const listadoProductos = [
     id: 3,
     nombre: "App de Ejemplo 3",
     precio: 20.00,
-    descripcion: "Descripción breve de la aplicación.",
+    descripcion: "Aprende nuevas habilidades desde la palma de tu mano. Esta plataforma educativa ofrece cursos interactivos, cuestionarios en vivo y seguimiento de progreso personalizado para tu crecimiento.",
     categoria: "Educación",
     calificacion: "★★★★☆",
     imagen: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=300&h=200&auto=format&fit=crop",
@@ -38,7 +38,7 @@ const listadoProductos = [
     id: 4,
     nombre: "App de Ejemplo 4",
     precio: 25.00,
-    descripcion: "Descripción breve de la aplicación.",
+    descripcion: "Conecta con personas que comparten tus mismos intereses. Crea tu perfil, comparte momentos inolvidables y únete a comunidades exclusivas en un entorno seguro y amigable.",
     categoria: "Social",
     calificacion: "★★★★☆",
     imagen: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=300&h=200&auto=format&fit=crop",
@@ -114,7 +114,7 @@ function crearTarjetaProducto(producto) {
 
   // ── Botón "Ver más" ──
   const aVerMas = document.createElement("a");
-  aVerMas.href = "catalogo.html";
+  aVerMas.href = "detalle-producto.html?id=" + producto.id;
   aVerMas.className = "btn";
   aVerMas.textContent = "Ver más";
 
@@ -137,12 +137,11 @@ function crearTarjetaProducto(producto) {
 // Busca el contenedor en el HTML y renderiza todas las tarjetas.
 // Usamos forEach en lugar del for clásico: es más moderno y legible.
 // ─────────────────────────────────────────────
-function cargarProductos() {
+function cargarProductos(productosAMostrar = listadoProductos) {
   const contenedor = document.querySelector("#productos-container");
 
   // Verificamos que el contenedor exista antes de operar sobre él
   if (!contenedor) {
-    console.error("Error: No se encontró #productos-container en el HTML.");
     return;
   }
 
@@ -150,7 +149,7 @@ function cargarProductos() {
   contenedor.innerHTML = "";
 
   // forEach recorre cada producto del arreglo y ejecuta la función para cada uno
-  listadoProductos.forEach(function (producto) {
+  productosAMostrar.forEach(function (producto) {
     const tarjeta = crearTarjetaProducto(producto);
 
     // Solo insertamos la tarjeta si la función devolvió algo válido (no null)
@@ -190,6 +189,40 @@ function filtrarPorCategoria(categoria) {
 }
 
 // ─────────────────────────────────────────────
+// FUNCIÓN: cargarDetalleProducto()
+// Lee el ID de la URL y muestra los detalles del producto.
+// ─────────────────────────────────────────────
+function cargarDetalleProducto() {
+  const contenedor = document.getElementById("detalle-producto-container");
+  if (!contenedor) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = parseInt(urlParams.get('id'));
+
+  if (!productId) {
+    contenedor.innerHTML = "<p>Producto no especificado.</p>";
+    return;
+  }
+
+  const producto = listadoProductos.find(p => p.id === productId);
+
+  if (!producto) {
+    contenedor.innerHTML = "<p>Producto no encontrado.</p>";
+    return;
+  }
+
+  document.getElementById("detalle-img").src = producto.imagen;
+  document.getElementById("detalle-img").alt = producto.nombre;
+  document.getElementById("detalle-nombre").textContent = producto.nombre;
+  document.getElementById("detalle-precio").textContent = `$${producto.precio.toFixed(2)}`;
+  document.getElementById("detalle-cuotas").textContent = producto.cuotas;
+  document.getElementById("detalle-categoria").textContent = producto.categoria;
+  document.getElementById("detalle-rating").textContent = producto.calificacion;
+  document.getElementById("detalle-descripcion").textContent = producto.descripcion;
+  document.title = producto.nombre + " - Tienda App Móvil Premium";
+}
+
+// ─────────────────────────────────────────────
 // EVENTO: DOMContentLoaded
 // Concepto clave: el navegador ejecuta este bloque SOLO cuando terminó
 // de leer y construir todo el HTML. Sin esto, el JS intentaría buscar
@@ -197,12 +230,54 @@ function filtrarPorCategoria(categoria) {
 // ─────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", function () {
   cargarProductos();
+  cargarDetalleProducto();
 
   // Mostramos en consola el total del catálogo como ejemplo de uso
   const total = calcularTotal(listadoProductos);
   console.log(`Total del catálogo: $${total}`);
 
-  // Ejemplo de filtro: productos de la categoría "Juegos"
-  const juegos = filtrarPorCategoria("Juegos");
-  console.log(`Productos en Juegos: ${juegos.length}`);
+  // ─────────────────────────────────────────────
+  // Lógica de Filtro por Categorías
+  // ─────────────────────────────────────────────
+  const categoriasBtns = document.querySelectorAll('#lista-categorias li');
+  
+  if (categoriasBtns.length > 0) {
+    categoriasBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Quitar la clase activa de todos
+        categoriasBtns.forEach(b => b.classList.remove('activa'));
+        // Agregar la clase activa al clickeado
+        this.classList.add('activa');
+        
+        const categoriaSeleccionada = this.getAttribute('data-categoria');
+        
+        if (categoriaSeleccionada === 'Todas') {
+          cargarProductos(listadoProductos);
+        } else {
+          const productosFiltrados = filtrarPorCategoria(categoriaSeleccionada);
+          cargarProductos(productosFiltrados);
+        }
+      });
+    });
+  }
+
+  // ─────────────────────────────────────────────
+  // Lógica del carrito: desplegar al hacer click
+  // ─────────────────────────────────────────────
+  const carritoBtn = document.querySelector('.carrito-btn');
+  const carrito = document.querySelector('.carrito');
+
+  if (carritoBtn && carrito) {
+    carritoBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      carrito.classList.toggle('active');
+    });
+
+    // Cerrar el carrito si se hace click fuera de él
+    document.addEventListener('click', function (e) {
+      if (!carrito.contains(e.target)) {
+        carrito.classList.remove('active');
+      }
+    });
+  }
 });
