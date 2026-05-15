@@ -71,19 +71,58 @@ header {
 .carrito-panel {
     position: absolute;
     right: 0;
-    top: calc(100% + 12px);
+    top: calc(100% + 15px);
     width: 360px;
     background: #fff;
     border: 1px solid var(--color-borde);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 16px;
+    
+    /* Estado inicial (oculto) */
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(15px) scale(0.95);
+    transform-origin: top right;
+    
+    /* Transición suave y rebotante */
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.3s;
+    
+    /* Sombra elegante y difuminada */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
     z-index: 50;
     color: var(--color-texto);
+}
+
+/* Triángulo indicador (flechita) apuntando al botón */
+.carrito-panel::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 24px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-top: 1px solid var(--color-borde);
+    border-left: 1px solid var(--color-borde);
+    transform: rotate(45deg);
+    z-index: 51;
+}
+
+/* Botón de Finalizar Compra dentro del carrito */
+.carrito-panel .btn-principal {
+    background: linear-gradient(135deg, var(--color-primario) 0%, #3b82f6 100%);
+    color: var(--color-blanco);
+    border-radius: 8px;
+    padding: 0.8rem;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    border: none;
+}
+
+.carrito-panel .btn-principal:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
+    color: var(--color-blanco);
 }
 
 /* Mostrar panel al hacer click o foco */
@@ -91,7 +130,7 @@ header {
 .carrito:focus-within .carrito-panel {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 .carrito-item {

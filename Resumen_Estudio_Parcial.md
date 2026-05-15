@@ -1,4 +1,4 @@
-﻿# Guia de Estudio para el Parcial: Aplicacion Web
+# Guia de Estudio para el Parcial: Aplicacion Web
 
 Este documento explica linea por linea los conceptos de HTML5, CSS3 y JavaScript aplicados en tu proyecto. Disenado para que puedas defender cada decision de codigo frente a cualquier pregunta del parcial.
 
@@ -532,3 +532,55 @@ formulario.addEventListener("submit", function (evento) {
 | `display: flex` | CSS header/forms | Alinear elementos en fila o columna |
 | `@media query` | CSS | Estilos condicionales por tamano de pantalla |
 | `var(--variable)` | CSS | Usar variables definidas en :root |
+
+---
+
+## 6. Actualizaciones de la Última Sesión (Carrito, Checkout, Detalles y Filtros)
+
+En la última actualización agregamos funcionalidades de una tienda real. Aquí está la explicación técnica de las decisiones y el código:
+
+### Carrito Desplegable Interactivo (Mobile-Friendly)
+
+**Antes:** El carrito se abría con CSS usando `:hover`. Esto era problemático en celulares porque no existe un "hover" real con pantallas táctiles.
+**Ahora:** Lo controlamos con JavaScript escuchando el evento `click`.
+
+- `classList.toggle('active')`: Usamos JS para agregar o quitar la clase `.active` al carrito al hacer clic. En CSS, cambiamos el selector a `.carrito.active .carrito-panel` para mostrarlo.
+- `e.stopPropagation()`: Evita que el clic en el botón se propague ("burbujee") hacia el `document`, lo que causaría que el carrito se cierre inmediatamente.
+- **Cierre al hacer clic afuera**: Agregamos un listener global en `document` que verifica `if (!carrito.contains(e.target))`. Si el usuario hace clic en un elemento que no es hijo del carrito, removemos la clase `.active`.
+
+### Animaciones Premium y Pseudo-elementos (CSS)
+
+- `transform: translateY(15px) scale(0.95)`: Estado inicial del carrito oculto. Está un poco más abajo y un 5% más pequeño.
+- `transform-origin: top right`: Define que la animación de crecimiento nazca desde la esquina superior derecha (donde está el ícono), dando una sensación física realista.
+- `transition: ... cubic-bezier(0.34, 1.56, 0.64, 1)`: Una curva de aceleración matemática. Ese "1.56" significa que la animación se pasa del 100% y luego retrocede, creando un efecto de **rebote elástico (bouncy)**.
+- `::before`: Pseudo-elemento de CSS. Creamos un triángulo (un cuadrado rotado a 45 grados) directamente en CSS sin agregar HTML extra. Lo posicionamos arriba (`top: -6px`) para que simule una flecha que conecta el panel con el botón del carrito.
+
+### Filtro de Categorías Dinámico (DOM y JavaScript)
+
+Convertimos botones estáticos en un sistema de filtrado en tiempo real sin recargar la página:
+
+- `data-categoria="..."`: Agregamos atributos de datos (Data Attributes) a los `<li>` en HTML. Son ideales para guardar información personalizada que JS puede leer.
+- `this.getAttribute('data-categoria')`: En el evento click, `this` hace referencia al botón presionado. Extraemos la categoría que queremos filtrar.
+- `cargarProductos(productosAMostrar)`: Modificamos la función principal para que acepte un parámetro por defecto (`listadoProductos`). Al filtrar, llamamos a `filtrarPorCategoria()`, obtenemos el sub-arreglo (por ejemplo, solo juegos) y se lo pasamos a `cargarProductos()`. Esta función vacía el HTML actual (`innerHTML = ""`) y re-dibuja solo los productos filtrados en milisegundos.
+
+### Página de Detalle Dinámica (`URLSearchParams`)
+
+En lugar de crear 50 archivos HTML para 50 productos, creamos una sola plantilla (`detalle-producto.html`) que se llena dinámicamente:
+
+- **Paso de parámetros**: Cambiamos el link de "Ver más" a `detalle-producto.html?id=1`. El `?id=1` es una **Query String** (cadena de consulta).
+- `new URLSearchParams(window.location.search)`: API nativa de navegadores para leer la URL. Nos permite extraer el ID del producto que el usuario quiere ver.
+- `Array.prototype.find()`: Usamos `listadoProductos.find(p => p.id === productId)` para buscar en nuestra "base de datos" el producto exacto que coincida con el ID de la URL. Si lo encuentra, usamos manipulación del DOM (`textContent`, `src`) para inyectar su nombre, descripción, precio y foto en la plantilla HTML vacía.
+
+### Diseño de la pantalla de Checkout
+
+- **Grid de dos columnas**: En `checkout.html`, usamos `display: grid; grid-template-columns: 1fr 350px;`. El formulario de facturación toma la fracción disponible (`1fr`) y el resumen de compra tiene un ancho fijo de `350px`.
+- **Posición "Sticky"**: Al contenedor del resumen de compra le aplicamos `position: sticky; top: 2rem;`. Esto hace que, si el usuario scrollea hacia abajo llenando un formulario largo, el resumen de compra se quede "pegado" en la pantalla siguiéndolo.
+
+### Simulación de Inicio de Sesión (Sin JavaScript)
+
+Creamos un flujo de login simulado utilizando únicamente propiedades nativas de HTML y CSS, sin requerir código JavaScript:
+
+- **Redirección nativa (`<form action="...">`)**: En `login.html`, el formulario utiliza `action="alta-producto.html"` y `method="GET"`. Al presionar el botón de tipo `submit`, el navegador procesa el formulario nativamente y redirige a la página de destino automáticamente. Esto demuestra cómo el HTML base está diseñado para manejar flujos de datos básicos.
+- **Flujo de Navegación Consistente**: Actualizamos todas las barras de navegación (`<nav>`) del sitio para que el botón "Iniciar Sesión" apunte consistentemente a `login.html`.
+- **Cambio de Estado Simulado (Feedback Visual)**: Dentro de `alta-producto.html` (que actúa como el panel de control privado), modificamos el botón superior para que luzca rojo y diga "Cerrar Sesión" (apuntando a `index.html`). Esto crea una ilusión de un sistema con gestión de estados (Logueado / No Logueado) aprovechando únicamente rutas de HTML estático.
+- **Experiencia de Usuario (UX) en CSS**: Aplicamos estilos dedicados (`.login-container`, `.login-form input:focus`) para darle un aspecto moderno. Cuando un usuario hace clic en un input, combinamos `outline: none;` con un `box-shadow` y un cambio de `border-color` para indicarle claramente dónde está escribiendo.
