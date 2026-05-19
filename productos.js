@@ -3,48 +3,28 @@
 // Usamos const porque este arreglo nunca se reasigna.
 // Cada elemento es un objeto con las propiedades del producto.
 // ─────────────────────────────────────────────
-const listadoProductos = [
-  {
-    id: 1,
-    nombre: "App de Ejemplo 1",
-    precio: 10.00,
-    descripcion: "Sumérgete en un mundo de aventuras épicas con esta innovadora aplicación de juegos. Disfruta de gráficos en alta definición, múltiples niveles desafiantes y un modo multijugador para competir con tus amigos en tiempo real.",
-    categoria: "Juegos",
-    calificacion: "★★★★☆",
-    imagen: "https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg",
-    cuotas: "3 cuotas sin interés"
-  },
-  {
-    id: 2,
-    nombre: "App de Ejemplo 2",
-    precio: 15.00,
-    descripcion: "Optimiza tu tiempo y organiza tus tareas diarias como un profesional. Esta aplicación te permite gestionar proyectos, establecer recordatorios inteligentes y colaborar con tu equipo en la nube.",
-    categoria: "Productividad",
-    calificacion: "★★★★☆",
-    imagen: "https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg",
-    cuotas: "6 cuotas fijas"
-  },
-  {
-    id: 3,
-    nombre: "App de Ejemplo 3",
-    precio: 20.00,
-    descripcion: "Aprende nuevas habilidades desde la palma de tu mano. Esta plataforma educativa ofrece cursos interactivos, cuestionarios en vivo y seguimiento de progreso personalizado para tu crecimiento.",
-    categoria: "Educación",
-    calificacion: "★★★★☆",
-    imagen: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=300&h=200&auto=format&fit=crop",
-    cuotas: "3 cuotas sin interés"
-  },
-  {
-    id: 4,
-    nombre: "App de Ejemplo 4",
-    precio: 25.00,
-    descripcion: "Conecta con personas que comparten tus mismos intereses. Crea tu perfil, comparte momentos inolvidables y únete a comunidades exclusivas en un entorno seguro y amigable.",
-    categoria: "Social",
-    calificacion: "★★★★☆",
-    imagen: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=300&h=200&auto=format&fit=crop",
-    cuotas: "1 pago"
+// En lugar de un arreglo estático, ahora guardaremos los productos que vengan de Supabase
+let listadoProductos = [];
+
+// Función para obtener productos desde Supabase
+async function obtenerProductosDeSupabase() {
+  try {
+    const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/productos?select=*`, {
+      headers: SUPABASE_HEADERS
+    });
+    
+    if (!respuesta.ok) {
+      throw new Error("Error en la respuesta de Supabase");
+    }
+    
+    const datos = await respuesta.json();
+    listadoProductos = datos; // Guardamos en memoria para los filtros
+    return datos;
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    return [];
   }
-];
+}
 
 // ─────────────────────────────────────────────
 // FUNCIÓN: crearTarjetaProducto(producto)
@@ -84,21 +64,24 @@ function crearTarjetaProducto(producto) {
   pPrecio.className = "precio";
   pPrecio.textContent = `$${producto.precio.toFixed(2)}`;
 
+  // ── Calificación (estrellas) ──
+  // Supabase no tiene el campo cuotas o calificacion por ahora, los simulamos si no existen
+  const cuotasTexto = producto.cuotas || "3 cuotas sin interés";
+  const calificacionTexto = producto.calificacion || "★★★★☆";
+  
   // ── Cuotas ──
   const pCuotas = document.createElement("p");
   pCuotas.className = "cuotas";
-  pCuotas.textContent = producto.cuotas;
+  pCuotas.textContent = cuotasTexto;
   pCuotas.style.fontSize = "0.85rem";
   pCuotas.style.fontWeight = "bold";
   pCuotas.style.color = "var(--color-primario)";
-
+  
   // ── Descripción ──
   const pDesc = document.createElement("p");
   pDesc.textContent = producto.descripcion;
 
   // ── Categoría ──
-  // Usamos createElement + createTextNode en lugar de innerHTML
-  // para evitar inyección de código malicioso (seguridad).
   const pCat = document.createElement("p");
   pCat.className = "categoria";
   const boldTag = document.createElement("strong");
@@ -106,11 +89,10 @@ function crearTarjetaProducto(producto) {
   pCat.appendChild(boldTag);
   pCat.appendChild(document.createTextNode(producto.categoria));
 
-  // ── Calificación (estrellas) ──
   const divRating = document.createElement("div");
   divRating.className = "rating";
-  divRating.setAttribute("aria-label", `Calificación: ${producto.calificacion}`);
-  divRating.textContent = producto.calificacion;
+  divRating.setAttribute("aria-label", `Calificación: ${calificacionTexto}`);
+  divRating.textContent = calificacionTexto;
 
   // ── Botón "Ver más" ──
   const aVerMas = document.createElement("a");
@@ -127,7 +109,31 @@ function crearTarjetaProducto(producto) {
   article.appendChild(pDesc);
   article.appendChild(pCat);
   article.appendChild(divRating);
-  article.appendChild(aVerMas);
+
+  // ── Contenedor de Botones ──
+  const divBotones = document.createElement("div");
+  divBotones.style.display = "flex";
+  divBotones.style.gap = "10px";
+  divBotones.style.marginTop = "10px";
+  
+  aVerMas.style.flex = "1";
+  
+  const btnCarrito = document.createElement("button");
+  btnCarrito.className = "btn btn-comprar";
+  btnCarrito.textContent = "🛒";
+  btnCarrito.title = "Añadir al carrito";
+  btnCarrito.style.padding = "0.5rem 1rem";
+  btnCarrito.style.flex = "0";
+  btnCarrito.addEventListener("click", () => {
+    if (window.agregarAlCarrito) {
+      window.agregarAlCarrito(producto);
+    }
+  });
+
+  divBotones.appendChild(aVerMas);
+  divBotones.appendChild(btnCarrito);
+  
+  article.appendChild(divBotones);
 
   return article;
 }
@@ -204,37 +210,128 @@ function cargarDetalleProducto() {
     return;
   }
 
-  const producto = listadoProductos.find(p => p.id === productId);
+  // Ahora buscamos en la base de datos de Supabase
+  fetch(`${SUPABASE_URL}/rest/v1/productos?id=eq.${productId}&select=*`, {
+    headers: SUPABASE_HEADERS
+  })
+  .then(respuesta => respuesta.json())
+  .then(productos => {
+    const producto = productos[0];
+    
+    if (!producto) {
+      contenedor.innerHTML = "<p>Producto no encontrado.</p>";
+      return;
+    }
 
-  if (!producto) {
-    contenedor.innerHTML = "<p>Producto no encontrado.</p>";
-    return;
-  }
+    const cuotasTexto = producto.cuotas || "3 cuotas sin interés";
+    const calificacionTexto = producto.calificacion || "★★★★☆";
 
-  document.getElementById("detalle-img").src = producto.imagen;
-  document.getElementById("detalle-img").alt = producto.nombre;
-  document.getElementById("detalle-nombre").textContent = producto.nombre;
-  document.getElementById("detalle-precio").textContent = `$${producto.precio.toFixed(2)}`;
-  document.getElementById("detalle-cuotas").textContent = producto.cuotas;
-  document.getElementById("detalle-categoria").textContent = producto.categoria;
-  document.getElementById("detalle-rating").textContent = producto.calificacion;
-  document.getElementById("detalle-descripcion").textContent = producto.descripcion;
-  document.title = producto.nombre + " - Tienda App Móvil Premium";
+    document.getElementById("detalle-img").src = producto.imagen || "https://placehold.co/300x200?text=Sin+Imagen";
+    document.getElementById("detalle-img").alt = producto.nombre;
+    document.getElementById("detalle-nombre").textContent = producto.nombre;
+    document.getElementById("detalle-precio").textContent = `$${producto.precio.toFixed(2)}`;
+    document.getElementById("detalle-cuotas").textContent = cuotasTexto;
+    document.getElementById("detalle-categoria").textContent = producto.categoria;
+    document.getElementById("detalle-rating").textContent = calificacionTexto;
+    document.getElementById("detalle-descripcion").textContent = producto.descripcion;
+    document.title = producto.nombre + " - Tienda App Móvil Premium";
+    
+    // Conectamos el botón de agregar al carrito
+    const btnAddCart = document.getElementById("btn-add-cart-detalle");
+    if (btnAddCart) {
+      btnAddCart.onclick = function() {
+        if (window.agregarAlCarrito) {
+          window.agregarAlCarrito(producto);
+        }
+      };
+    }
+    
+    // ── Cargar Comentarios ──
+    cargarComentariosProducto(productId);
+  })
+  .catch(error => {
+    console.error("Error al obtener detalle del producto:", error);
+    contenedor.innerHTML = "<p>Ocurrió un error al cargar el producto.</p>";
+  });
+}
+
+function cargarComentariosProducto(productId) {
+  fetch(`${SUPABASE_URL}/rest/v1/comentarios?producto_id=eq.${productId}&select=*`, {
+    headers: SUPABASE_HEADERS
+  })
+  .then(res => res.json())
+  .then(comentarios => {
+    const comentariosContainer = document.getElementById("comentarios-container");
+    const comentariosLista = document.getElementById("comentarios-lista");
+    
+    if (!comentariosContainer || !comentariosLista) return;
+    
+    comentariosContainer.style.display = "block"; // Mostrar sección
+    
+    if (comentarios.length === 0) {
+      comentariosLista.innerHTML = "<p style='color: #64748b;'>Aún no hay reseñas para este producto.</p>";
+      return;
+    }
+    
+    comentariosLista.innerHTML = "";
+    
+    comentarios.forEach(comentario => {
+      const card = document.createElement("div");
+      card.className = "comentario-card";
+      
+      const nombreUsuario = comentario.nombre_usuario || "Anónimo";
+      const inicial = nombreUsuario.charAt(0).toUpperCase();
+      const fechaObj = comentario.created_at ? new Date(comentario.created_at) : new Date();
+      const fecha = fechaObj.toLocaleDateString("es-ES", {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      // Dibujar estrellas
+      const maxEstrellas = 5;
+      const puntos = comentario.puntuacion || 5;
+      let estrellasHtml = "";
+      for (let i = 1; i <= maxEstrellas; i++) {
+        estrellasHtml += i <= puntos ? "★" : "☆";
+      }
+      
+      card.innerHTML = `
+        <div class="comentario-header">
+          <div class="comentario-usuario">
+            <div class="avatar-placeholder">${inicial}</div>
+            ${nombreUsuario}
+          </div>
+          <div class="comentario-fecha">${fecha}</div>
+        </div>
+        <div class="comentario-estrellas">${estrellasHtml}</div>
+        <div class="comentario-texto">${comentario.comentario}</div>
+      `;
+      
+      comentariosLista.appendChild(card);
+    });
+  })
+  .catch(err => {
+    console.error("Error al cargar comentarios:", err);
+    const comentariosLista = document.getElementById("comentarios-lista");
+    if (comentariosLista) {
+      comentariosLista.innerHTML = "<p>Error al cargar las reseñas.</p>";
+    }
+  });
 }
 
 // ─────────────────────────────────────────────
 // EVENTO: DOMContentLoaded
-// Concepto clave: el navegador ejecuta este bloque SOLO cuando terminó
-// de leer y construir todo el HTML. Sin esto, el JS intentaría buscar
-// elementos que todavía no existen y fallaría silenciosamente.
 // ─────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", function () {
-  cargarProductos();
-  cargarDetalleProducto();
+document.addEventListener("DOMContentLoaded", async function () {
+  
+  // Si existe el contenedor de productos, cargamos los datos de Supabase
+  if (document.querySelector("#productos-container")) {
+    const productos = await obtenerProductosDeSupabase();
+    cargarProductos(productos);
+  }
 
-  // Mostramos en consola el total del catálogo como ejemplo de uso
-  const total = calcularTotal(listadoProductos);
-  console.log(`Total del catálogo: $${total}`);
+  cargarDetalleProducto();
 
   // ─────────────────────────────────────────────
   // Lógica de Filtro por Categorías
@@ -279,5 +376,34 @@ document.addEventListener("DOMContentLoaded", function () {
         carrito.classList.remove('active');
       }
     });
+  }
+
+  // ─────────────────────────────────────────────
+  // Lógica de Búsqueda en Vivo
+  // ─────────────────────────────────────────────
+  const searchInput = document.getElementById('search-input');
+  const searchButton = document.getElementById('search-button');
+  
+  function realizarBusqueda() {
+    const texto = searchInput.value.toLowerCase();
+    const productosFiltrados = listadoProductos.filter(p => 
+      p.nombre.toLowerCase().includes(texto) || 
+      p.categoria.toLowerCase().includes(texto) ||
+      (p.descripcion && p.descripcion.toLowerCase().includes(texto))
+    );
+    
+    cargarProductos(productosFiltrados);
+    
+    // Opcional: limpiar los filtros de categorías si se está buscando algo específico
+    if (texto !== '') {
+      categoriasBtns.forEach(b => b.classList.remove('activa'));
+    }
+  }
+
+  if (searchInput && searchButton) {
+    // Buscar al escribir (Live Search)
+    searchInput.addEventListener('input', realizarBusqueda);
+    // Buscar al hacer clic en el botón
+    searchButton.addEventListener('click', realizarBusqueda);
   }
 });

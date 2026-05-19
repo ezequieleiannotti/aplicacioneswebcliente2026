@@ -584,3 +584,46 @@ Creamos un flujo de login simulado utilizando únicamente propiedades nativas de
 - **Flujo de Navegación Consistente**: Actualizamos todas las barras de navegación (`<nav>`) del sitio para que el botón "Iniciar Sesión" apunte consistentemente a `login.html`.
 - **Cambio de Estado Simulado (Feedback Visual)**: Dentro de `alta-producto.html` (que actúa como el panel de control privado), modificamos el botón superior para que luzca rojo y diga "Cerrar Sesión" (apuntando a `index.html`). Esto crea una ilusión de un sistema con gestión de estados (Logueado / No Logueado) aprovechando únicamente rutas de HTML estático.
 - **Experiencia de Usuario (UX) en CSS**: Aplicamos estilos dedicados (`.login-container`, `.login-form input:focus`) para darle un aspecto moderno. Cuando un usuario hace clic en un input, combinamos `outline: none;` con un `box-shadow` y un cambio de `border-color` para indicarle claramente dónde está escribiendo.
+
+### Carrito de Compras con Persistencia (`localStorage`)
+
+Transformamos el carrito de compras de una maqueta estática a un sistema 100% dinámico:
+
+- **Módulo Centralizado (`carrito.js`)**: Separamos la lógica del carrito en su propio archivo JavaScript y lo enlazamos en todos los HTMLs. Así, cualquier página puede acceder al estado del carrito.
+- **Uso de `localStorage`**: Usamos la API del navegador `localStorage.setItem` y `getItem` para guardar un "string" con el JSON de los productos elegidos. Así, los datos sobreviven aunque el usuario cierre el navegador o cambie de página.
+- **Actualización Dinámica del DOM**: Creamos la función `renderizarCarrito()` que vacía (`innerHTML = ""`) el panel del carrito y lo reconstruye en base al `localStorage`. Suma los precios multiplicados por cantidad, calcula impuestos en el Checkout, y actualiza los badges rojos (contadores de productos) en la barra de navegación.
+
+### Integración con Base de Datos en la Nube (Supabase y Fetch API)
+
+Migramos el catálogo estático en memoria a una base de datos real (PostgreSQL en Supabase):
+
+- **Arquitectura Cliente-Servidor**: Eliminamos el arreglo duro (`listadoProductos`) y ahora pedimos los datos a internet mediante la API REST autogenerada de Supabase.
+- **Peticiones Asíncronas (`async/await` y `fetch`)**: Usamos la función `fetch` mandando nuestras llaves (`apikey`) en los encabezados (`headers`) para autorizarnos. Al usar `await res.json()`, pausamos la ejecución hasta que los datos llegan desde Estados Unidos/Europa, permitiendo renderizar el catálogo con datos 100% reales.
+- **Inserción de Datos (Método POST)**: En `alta-producto.js`, el formulario ahora hace un `fetch` con el método `POST`, enviando los datos del nuevo producto como texto JSON en el `body`. Supabase lo recibe y lo inserta en la tabla real.
+
+### Relaciones de Bases de Datos y Comentarios Dinámicos
+
+Agregamos una capa de feedback social mediante una tabla de comentarios relacional:
+
+- **Claves Foráneas (`FOREIGN KEY`)**: En la base de datos creamos la tabla `comentarios` con el campo `producto_id`, relacionando un producto con "muchas" reseñas. Le agregamos `ON DELETE CASCADE` para mantener la integridad (si se borra la app, se borran sus reseñas).
+- **Consultas Filtradas en la API**: En `detalle-producto.html`, cruzamos datos. Primero pedimos el producto, y luego hacemos otra consulta `fetch` a `/rest/v1/comentarios?producto_id=eq.ID_DEL_PRODUCTO` para traer solo las reseñas de esa App en particular.
+### Búsqueda Dinámica en Tiempo Real (Live Search)
+
+Implementamos un buscador que filtra el catálogo instantáneamente mientras el usuario escribe:
+
+- **Evento `input`**: A diferencia del evento `click`, este evento se dispara cada vez que el valor del `<input>` cambia (al presionar una tecla o borrar). Esto nos permite filtrar sin necesidad de recargar ni presionar un botón.
+- **`Array.prototype.filter()` y `includes()`**: Usamos JavaScript para convertir el texto a minúsculas (`toLowerCase()`) y filtrar el arreglo original buscando coincidencias en el título, categoría o descripción, para luego redibujar el HTML solo con los productos filtrados.
+
+---
+
+## Glosario Rápido para el Parcial (Definiciones Breves)
+
+- **`fetch()`**: Es una función nativa de JavaScript que sirve para hacer peticiones por internet (HTTP) a un servidor o API y traer datos (o enviarlos) sin recargar la página.
+- **`async` / `await`**: Son palabras clave que indican que una función tomará tiempo en ejecutarse (ej: descargar datos). Pausan la ejecución del código en esa línea hasta que el servidor responda, evitando errores de "datos no encontrados".
+- **`localStorage`**: Es una pequeña base de datos integrada en el navegador web. Permite guardar información en formato texto que no se borra aunque el usuario cierre la pestaña o la computadora.
+- **DOM (Document Object Model)**: Es la representación estructural del HTML que hace el navegador. Mediante JavaScript podemos manipular el DOM para agregar, borrar o modificar elementos (`divs`, textos, clases) en pantalla en tiempo real.
+- **`URLSearchParams`**: Una herramienta de JavaScript que sirve para leer fácilmente las variables enviadas en la URL (como `?id=5`), ideal para cargar el detalle correcto de un producto.
+- **REST API**: Es un conjunto de reglas que permite a nuestra página comunicarse con un servidor externo (como Supabase) pidiendo información a través de direcciones de internet (URLs).
+- **JSON (JavaScript Object Notation)**: Es el formato estándar de texto ligero que se usa para enviar y recibir datos por internet (como arreglos u objetos).
+- **FOREIGN KEY (Clave Foránea)**: Es una columna en una base de datos relacional que une dos tablas; por ejemplo, la columna `producto_id` en la tabla de comentarios que la vincula con la tabla de productos.
+- **CSS Grid y Flexbox**: Son dos sistemas de diseño de CSS moderno. Flexbox alinea elementos en una sola fila o columna, mientras que Grid crea cuadrículas complejas de dos dimensiones.
