@@ -627,3 +627,29 @@ Implementamos un buscador que filtra el catálogo instantáneamente mientras el 
 - **JSON (JavaScript Object Notation)**: Es el formato estándar de texto ligero que se usa para enviar y recibir datos por internet (como arreglos u objetos).
 - **FOREIGN KEY (Clave Foránea)**: Es una columna en una base de datos relacional que une dos tablas; por ejemplo, la columna `producto_id` en la tabla de comentarios que la vincula con la tabla de productos.
 - **CSS Grid y Flexbox**: Son dos sistemas de diseño de CSS moderno. Flexbox alinea elementos en una sola fila o columna, mientras que Grid crea cuadrículas complejas de dos dimensiones.
+
+---
+
+## 🎨 Rediseño UX Premium ("Taste Design" y Modo Oscuro)
+
+Para llevar la aplicación de un simple prototipo a un producto final de nivel empresarial, implementamos un sistema de diseño premium, enfocado en el minimalismo y la legibilidad:
+
+### 1. Variables CSS y Consistencia
+Todo el sistema de colores y sombras está controlado por **Variables CSS (`:root`)**. Esto nos permitió cambiar la aplicación entera a un "Modo Oscuro" en segundos, redefiniendo las variables de color sin tocar el código fuente de los HTML.
+
+### 2. Estética "Modo Oscuro" (Dark Theme)
+- **Fondos de Pizarra (`Slate`):** Abandonamos el clásico blanco que encandila y el negro puro (`#000`), usando azules grisáceos muy oscuros (`Slate 900` para el body y `Slate 800` para las tarjetas). Esto es mucho más relajante para la vista y se considera un estándar de alta gama (Premium UI).
+- **Contraste Limpio:** El texto principal ahora es "blanco nieve" (`Slate 50`), logrando una lectura óptima sin el "efecto halo" que produce el texto 100% blanco puro.
+
+### 3. Glassmorphism (Efecto Cristal)
+El `<header>` de la página utiliza propiedades modernas como `backdrop-filter: blur(12px)`. Esto aplica un desenfoque (tipo cristal esmerilado) a los elementos que pasan por detrás cuando el usuario hace scroll, creando sensación de profundidad y fluidez.
+
+### 4. Botones "Fantasma" (Ghost UI)
+En lugar de saturar la pantalla con bloques grandes de colores brillantes, aplicamos la tendencia de botones "Fantasma" en los "Call to Action" (CTAs) como Login, Buscar y Añadir al Carrito. 
+- **Estado Reposo:** Son transparentes con un borde fino (`border: 1px solid var(--color-borde)`), dándole prioridad al contenido principal.
+- **Micro-interacciones (`hover`):** Al pasar el ratón, se iluminan sutilmente con una transición suave (`transition: all 0.3s cubic-bezier(...)`), el borde se vuelve más claro y el botón se eleva en el eje Y (`transform: translateY(-2px)`), generando un excelente *feedback* táctil.
+
+### 5. Iconografía y Detalles del Carrito
+- **Forma de Píldora (`Pill Shape`):** El botón del carrito tiene `border-radius: 99px;`, dándole una forma redondeada súper moderna.
+- **Badge Integrado:** El número de productos (`.badge`) perdió las sombras duras y el color rojo de error. Ahora utiliza el azul índigo primario del sitio y está centrado usando `display: flex`, integrándose pacíficamente en la barra superior.
+- **Icono Universal:** Cambiamos el vector SVG genérico por el contorno universal de un carrito de supermercado (`Lucide/Feather icons`), garantizando que cualquier usuario entienda su función en un segundo.
