@@ -10,11 +10,11 @@
     .detalle-container {
       max-width: 1000px;
       margin: 2rem auto;
-      background-color: var(--color-blanco);
-      border: 1px solid var(--color-borde);
-      border-radius: 16px;
+      background-color: var(--color-superficie);
+      border: 1px solid rgba(226, 232, 240, 0.1);
+      border-radius: var(--radius-xl);
       padding: 3rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--shadow-xl);
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 3rem;
@@ -38,8 +38,8 @@
     .detalle-categoria {
       text-transform: uppercase;
       font-size: 0.85rem;
-      font-weight: bold;
-      color: var(--color-secundario);
+      font-weight: 600;
+      color: var(--color-primario);
       letter-spacing: 1px;
     }
 
@@ -79,27 +79,28 @@
     .detalle-descripcion {
       font-size: 1.1rem;
       line-height: 1.6;
-      color: #475569;
+      color: var(--color-texto-suave);
       margin-bottom: 1.5rem;
     }
 
     .btn-comprar {
-      background: linear-gradient(135deg, var(--color-primario) 0%, #3b82f6 100%);
-      color: var(--color-blanco);
+      background: transparent;
+      color: var(--color-texto);
       padding: 1rem 2rem;
       font-size: 1.2rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 99px;
+      font-weight: 600;
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radius-xl);
       cursor: pointer;
       text-align: center;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       width: 100%;
     }
 
     .btn-comprar:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--color-texto-suave);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
     }
 
     @media (max-width: 768px) {
@@ -112,6 +113,81 @@
       .detalle-nombre {
         font-size: 2rem;
       }
+    }
+
+    /* Estilos para la sección de comentarios */
+    .comentarios-seccion {
+      max-width: 1000px;
+      margin: 2rem auto;
+      background-color: var(--color-superficie);
+      border: 1px solid rgba(226, 232, 240, 0.1);
+      border-radius: var(--radius-xl);
+      padding: 3rem;
+      box-shadow: var(--shadow-xl);
+    }
+    
+    .comentarios-seccion h3 {
+      font-size: 1.8rem;
+      color: var(--color-texto);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--color-borde);
+      padding-bottom: 1rem;
+    }
+    
+    .comentario-card {
+      border-bottom: 1px solid var(--color-borde);
+      padding: 1.5rem 0;
+    }
+    
+    .comentario-card:last-child {
+      border-bottom: none;
+    }
+    
+    .comentario-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .comentario-usuario {
+      font-weight: bold;
+      color: var(--color-texto);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .avatar-placeholder {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    
+    .comentario-fecha {
+      font-size: 0.85rem;
+      color: var(--color-texto-suave);
+    }
+    
+    .comentario-estrellas {
+      color: #fbbf24;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .comentario-texto {
+      color: var(--color-texto-suave);
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -131,34 +207,17 @@
       </nav>
       <div class="carrito" aria-label="Carrito de compra" tabindex="0">
         <button class="carrito-btn" aria-label="Abrir carrito">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 6h15l-1.5 9h-12z" />
-            <circle cx="9" cy="20" r="1" />
-            <circle cx="19" cy="20" r="1" />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
           </svg>
-          <span class="badge" aria-label="Cantidad de productos">3</span>
+          <span class="badge" aria-label="Cantidad de productos">0</span>
         </button>
         <div class="carrito-panel" aria-label="Contenido del carrito">
-          <!-- Carrito Estático para demo -->
-          <div class="carrito-item">
-            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=300&h=200&auto=format&fit=crop" alt="Producto" />
-            <div class="carrito-info">
-              <div class="carrito-titulo">App de Ejemplo 3</div>
-              <div class="carrito-precio">$20.00</div>
-            </div>
-            <button class="btn-eliminar" aria-label="Eliminar" title="Eliminar" style="margin-left: auto; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; padding: 0 5px;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#ef4444'">✖</button>
-          </div>
-          <div class="carrito-item">
-            <img src="https://cdn.pixabay.com/photo/2012/11/30/06/00/app-68002_1280.jpg" alt="Producto" />
-            <div class="carrito-info">
-              <div class="carrito-titulo">App de Ejemplo 1</div>
-              <div class="carrito-precio">$10.00</div>
-            </div>
-            <button class="btn-eliminar" aria-label="Eliminar" title="Eliminar" style="margin-left: auto; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; padding: 0 5px;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#ef4444'">✖</button>
-          </div>
-          <div class="carrito-total">Total: $30.00</div>
-          <a href="checkout.html" class="btn-principal" style="display: block; width: 100%; margin-top: 1rem; text-align: center; box-sizing: border-box; padding: 0.8rem;">Finalizar Compra</a>
+          <div id="carrito-items-container"></div>
+          <div class="carrito-total" id="carrito-total-texto">Total: $0.00</div>
+          <button id="btn-finalizar-compra" class="btn-principal" style="width: 100%; text-align: center; margin-top: 10px; display: block; border: none; cursor: pointer;">Finalizar Compra</button>
         </div>
       </div>
     </div>
@@ -187,9 +246,17 @@
         
         <div id="detalle-descripcion" class="detalle-descripcion"></div>
         
-        <button class="btn-comprar" onclick="alert('¡Producto añadido al carrito exitosamente!')">
+        <button id="btn-add-cart-detalle" class="btn-comprar">
           🛒 Añadir al carrito
         </button>
+      </div>
+    </div>
+
+    <!-- Contenedor para la sección de comentarios -->
+    <div id="comentarios-container" class="comentarios-seccion" style="display: none;">
+      <h3>Reseñas de Usuarios</h3>
+      <div id="comentarios-lista">
+        <p style="color: #64748b;">Cargando comentarios...</p>
       </div>
     </div>
   </main>
@@ -202,6 +269,8 @@
   </footer>
 
   <!-- Cargamos el script que se encargará de rellenar la info -->
+  <script src="js/config.js"></script>
+  <script src="js/carrito.js"></script>
   <script src="productos.js"></script>
 </body>
 

@@ -46,46 +46,66 @@ document.addEventListener("DOMContentLoaded", function () {
   // EVENTO: submit del formulario
   // Se dispara cuando el usuario hace clic en "Registrar Producto"
   // ─────────────────────────────────────────────
-  formulario.addEventListener("submit", function (evento) {
+  formulario.addEventListener("submit", async function (evento) {
 
     // Prevenimos el comportamiento por defecto: que la página se recargue
-    // y se pierdan todos los datos que el usuario escribió
     evento.preventDefault();
 
     // Leemos los valores de cada campo usando su ID
-    // .value siempre devuelve un string (texto), por eso convertimos precio y stock
     const nombre = document.querySelector("#nombre").value;
     const precio = document.querySelector("#precio").value;
     const descripcion = document.querySelector("#descripcion").value;
     const categoria = document.querySelector("#categoria").value;
     const stock = document.querySelector("#stock").value;
 
-    // Armamos un objeto con los datos ya convertidos al tipo correcto
-    // parseFloat convierte "9.99" (string) → 9.99 (número decimal)
-    // parseInt convierte "100" (string) → 100 (número entero)
-    // El || 0 es un operador lógico: si stock está vacío (falsy), usa 0 como valor por defecto
     const nuevoProducto = {
       nombre: nombre,
       precio: parseFloat(precio),
       descripcion: descripcion,
       categoria: categoria,
       stock: parseInt(stock) || 0
+      // Nota: Supabase generará el 'id' y el 'created_at' automáticamente
     };
 
-    // Validamos antes de "guardar". Si la validación falla, cortamos la ejecución.
     if (!validarProducto(nuevoProducto)) {
       return;
     }
 
-    // Simulamos el guardado mostrando el objeto en consola
-    console.log("Producto registrado:", nuevoProducto);
+    // Cambiamos el texto del botón para indicar que estamos cargando
+    const btnSubmit = formulario.querySelector('button[type="submit"]');
+    const textoOriginal = btnSubmit.textContent;
+    btnSubmit.textContent = "Guardando...";
+    btnSubmit.disabled = true;
 
-    // Template literal: usamos backticks (`) para armar el mensaje con variables adentro
-    // Esto es más limpio que concatenar con el operador +
-    alert(`¡Éxito! El producto "${nuevoProducto.nombre}" fue registrado por $${nuevoProducto.precio.toFixed(2)}.`);
+    try {
+      // Enviamos el producto a Supabase
+      const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/productos`, {
+        method: 'POST',
+        headers: SUPABASE_HEADERS,
+        body: JSON.stringify(nuevoProducto)
+      });
 
-    // Limpiamos el formulario automáticamente para poder cargar otro producto
-    formulario.reset();
+      if (!respuesta.ok) {
+        // Capturamos el error real que manda Supabase
+        const errorData = await respuesta.json();
+        console.error("Supabase rechazó la petición:", errorData);
+        throw new Error(errorData.message || "Error desconocido de Supabase");
+      }
+
+      const datosGuardados = await respuesta.json();
+      console.log("Producto guardado exitosamente:", datosGuardados);
+
+      alert(`¡Éxito! El producto "${nuevoProducto.nombre}" fue registrado correctamente en la base de datos.`);
+      formulario.reset();
+      
+    } catch (error) {
+      console.error("Hubo un problema:", error);
+      alert(`No se pudo guardar el producto.\nMotivo: ${error.message}\n(Revisa si ejecutaste el SQL en Supabase para crear las tablas y políticas).`);
+    } finally {
+      // Restauramos el botón
+      btnSubmit.textContent = textoOriginal;
+      btnSubmit.disabled = false;
+    }
   });
 
 });

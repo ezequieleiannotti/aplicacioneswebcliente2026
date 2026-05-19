@@ -1,12 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-    --color-primario: #25b3eb;
-    --color-secundario: #1e40af;
-    --color-fondo: #f8fafc;
-    --color-texto: #1e293b;
-    --color-borde: #e2e8f0;
-    --color-blanco: #ffffff;
-    --tamano-header: 60px;
+    --color-primario: #818cf8;       /* Índigo suave y elegante */
+    --color-secundario: #6366f1;     /* Índigo un poco más oscuro */
+    --color-fondo: #0f172a;          /* Slate 900 */
+    --color-superficie: #1e293b;     /* Slate 800 */
+    --color-texto: #f8fafc;          /* Slate 50 */
+    --color-texto-suave: #94a3b8;    /* Slate 400 */
+    --color-borde: #334155;          /* Slate 700 */
+    --color-blanco: #ffffff;         /* Blanco puro */
+    --tamano-header: 70px;
     --tamano-footer: 80px;
+    
+    /* Sombras más sutiles y elegantes, menos chillonas */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 15px rgba(129, 140, 248, 0.15); /* Glow casi imperceptible */
+    
+    /* Bordes y radios redondeados suaves */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
 }
 
 * {
@@ -16,22 +33,55 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Tipografía premium */
     background-color: var(--color-fondo);
     color: var(--color-texto);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased; /* Suavizado de fuentes en Mac */
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* Header con efecto Glassmorphism */
 header {
-    background-color: var(--color-primario);
-    color: var(--color-blanco);
-    padding: 1rem;
+    background: rgba(15, 23, 42, 0.85); /* Fondo semitransparente oscuro */
+    backdrop-filter: blur(12px); /* Desenfocado del fondo tipo cristal */
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5); /* Slate 700 */
+    color: var(--color-texto);
+    padding: 0 2rem;
     height: var(--tamano-header);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: sticky; /* Header fijo al hacer scroll */
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+}
+
+header nav ul li a {
+    color: var(--color-texto-suave);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+header nav ul li a:hover {
+    color: var(--color-secundario);
+    background-color: rgba(14, 165, 233, 0.05);
 }
 
 /* Mejoras del Carrito */
@@ -40,32 +90,37 @@ header {
 }
 
 .carrito-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: #fff;
-    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--color-borde);
+    border-radius: 99px; /* Pill shape para que se vea muy moderno */
+    color: var(--color-texto);
+    padding: 0.5rem 1rem;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
     font: inherit;
-    transition: all 0.3s ease;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .carrito-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-texto-suave);
+    transform: translateY(-2px);
 }
 
 .badge {
-    background: #ef4444;
-    color: #fff;
-    border-radius: 999px;
-    padding: 0.15rem 0.45rem;
+    background: var(--color-primario);
+    color: var(--color-fondo); /* Dark text on bright badge for high contrast */
+    border-radius: 99px;
+    padding: 0.2rem 0.55rem;
     font-size: 0.75rem;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carrito-panel {
@@ -73,7 +128,7 @@ header {
     right: 0;
     top: calc(100% + 15px);
     width: 360px;
-    background: #fff;
+    background: var(--color-superficie);
     border: 1px solid var(--color-borde);
     border-radius: 16px;
     padding: 16px;
@@ -101,7 +156,7 @@ header {
     right: 24px;
     width: 12px;
     height: 12px;
-    background: #fff;
+    background: var(--color-superficie);
     border-top: 1px solid var(--color-borde);
     border-left: 1px solid var(--color-borde);
     transform: rotate(45deg);
@@ -214,17 +269,18 @@ nav a:hover {
 }
 
 nav a.btn-login {
-    background-color: var(--color-blanco);
-    color: var(--color-primario);
-    font-weight: bold;
+    background-color: transparent;
+    border: 1px solid var(--color-borde);
+    color: var(--color-texto);
+    font-weight: 600;
     border-radius: 99px;
     padding: 0.5rem 1.25rem;
 }
 
 nav a.btn-login:hover {
-    background-color: #f1f5f9;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-texto-suave);
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 main {
@@ -246,13 +302,30 @@ section {
 
 /* --- Hero Section --- */
 .hero {
-    background: linear-gradient(135deg, var(--color-primario) 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, var(--color-secundario) 0%, var(--color-primario) 100%);
     color: var(--color-blanco);
-    padding: 5rem 2rem;
-    border-radius: 16px;
+    padding: 6rem 2rem;
+    border-radius: var(--radius-xl);
     text-align: center;
     margin-top: 1rem;
-    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    100% { transform: rotate(360deg); }
 }
 
 .hero h2 {
@@ -271,19 +344,23 @@ section {
 
 .btn-principal {
     background: var(--color-blanco);
-    color: var(--color-primario);
+    color: var(--color-secundario);
     padding: 0.8rem 2.5rem;
     font-size: 1.1rem;
-    font-weight: bold;
-    border-radius: 99px;
+    font-weight: 600;
+    border-radius: var(--radius-xl);
     text-decoration: none;
     display: inline-block;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    z-index: 2;
+    box-shadow: var(--shadow-md);
 }
 
 .btn-principal:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-xl), var(--shadow-glow);
+    color: var(--color-primario);
 }
 
 /* --- Categorías Rápidas --- */
@@ -296,7 +373,7 @@ section {
 }
 
 .categorias-lista li {
-    background-color: var(--color-blanco);
+    background-color: var(--color-superficie);
     padding: 1rem 1.5rem;
     border-radius: 12px;
     border: 1px solid var(--color-borde);
@@ -330,70 +407,92 @@ section {
 }
 
 .tarjeta {
-    background-color: var(--color-blanco);
-    border: 1px solid var(--color-borde);
-    border-radius: 16px;
+    background-color: var(--color-superficie);
+    border: 1px solid rgba(226, 232, 240, 0.1);
+    border-radius: var(--radius-xl);
     padding: 1.5rem;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
 }
 
 .tarjeta:hover {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-    transform: translateY(-4px);
-    border-color: #cbd5e1;
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-6px);
+    border-color: rgba(14, 165, 233, 0.2);
 }
 
 .tarjeta img {
     width: 100%;
-    border-radius: 10px;
+    height: 180px;
+    border-radius: var(--radius-md);
     margin-bottom: 1.5rem;
     object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.tarjeta:hover img {
+    transform: scale(1.03);
 }
 
 .tarjeta svg {
     width: 100%;
     height: auto;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     display: block;
     margin-bottom: 1.5rem;
 }
 
 .tarjeta h3 {
-    color: var(--color-secundario);
+    color: var(--color-texto);
+    font-size: 1.25rem;
+    font-weight: 700;
     margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
 }
 
 .tarjeta .precio {
-    font-size: 1.25rem;
-    font-weight: bold;
+    font-size: 1.35rem;
+    font-weight: 700;
     color: var(--color-primario);
     margin-bottom: 0.5rem;
 }
 
 .tarjeta p {
     margin-bottom: 1rem;
-    line-height: 1.4;
+    line-height: 1.5;
+    color: var(--color-texto-suave);
+    font-size: 0.95rem;
 }
 
 .tarjeta .btn {
-    display: inline-block;
-    background-color: var(--color-primario);
-    color: var(--color-blanco);
-    padding: 0.5rem 1rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-texto);
+    padding: 0.6rem 1.2rem;
     text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 1px solid var(--color-borde);
+    cursor: pointer;
 }
 
 .tarjeta .btn:hover {
-    background-color: var(--color-secundario);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-texto-suave);
+    transform: translateY(-2px);
 }
 
 footer {
-    background-color: var(--color-secundario);
-    color: var(--color-blanco);
+    background-color: var(--color-superficie);
+    border-top: 1px solid var(--color-borde);
+    color: var(--color-texto-suave);
     padding: 1rem;
     text-align: center;
     height: var(--tamano-footer);
@@ -401,6 +500,10 @@ footer {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+footer p {
+    color: var(--color-texto-suave);
 }
 
 footer a {
@@ -413,20 +516,22 @@ footer a:hover {
 
 /* --- Estilos para Formularios Modernos --- */
 .form-container {
-    background-color: var(--color-blanco);
-    border: 1px solid var(--color-borde);
-    border-radius: 12px;
-    padding: 2.5rem;
+    background-color: var(--color-superficie);
+    border: 1px solid rgba(226, 232, 240, 0.1);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2.5rem;
     max-width: 600px;
     margin: 2rem auto;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-lg);
 }
 
 .form-container h2 {
     text-align: center;
     margin-bottom: 2rem;
-    color: var(--color-secundario);
-    font-size: 2rem;
+    color: var(--color-texto);
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .form-group {
@@ -436,22 +541,23 @@ footer a:hover {
 }
 
 .form-group label {
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--color-secundario);
+    color: var(--color-texto);
     font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
-    padding: 0.8rem 1rem;
-    border: 2px solid var(--color-borde);
-    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radius-md);
     font-size: 1rem;
     font-family: inherit;
     transition: all 0.3s ease;
     background-color: var(--color-fondo);
+    color: var(--color-texto);
 }
 
 .form-group input:focus,
@@ -459,27 +565,28 @@ footer a:hover {
 .form-group select:focus {
     outline: none;
     border-color: var(--color-primario);
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
     background-color: var(--color-blanco);
 }
 
 .btn-submit {
-    background: linear-gradient(135deg, var(--color-primario) 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
     color: var(--color-blanco);
     padding: 1rem 2rem;
     font-size: 1.1rem;
-    font-weight: bold;
+    font-weight: 600;
     border: none;
-    border-radius: 99px;
+    border-radius: var(--radius-xl);
     cursor: pointer;
     width: 100%;
     margin-top: 1rem;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-xl), var(--shadow-glow);
 }
 
 @media (max-width: 768px) {
