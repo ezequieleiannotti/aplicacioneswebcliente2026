@@ -589,22 +589,74 @@ footer a:hover {
     box-shadow: var(--shadow-xl), var(--shadow-glow);
 }
 
+/* Botón hamburguesa — oculto en desktop */
+.hamburger-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--color-borde);
+    color: var(--color-texto);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.65rem;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-texto-suave);
+}
+
 @media (max-width: 768px) {
+    /* Header mantiene su altura fija */
     header {
-        flex-direction: column;
-        height: auto;
-        gap: 1rem;
+        padding: 0 1rem;
+        height: var(--tamano-header);
+    }
+
+    /* Mostrar hamburguesa */
+    .hamburger-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        order: -1; /* aparece antes del nav */
+    }
+
+    /* Nav oculto por defecto en mobile */
+    header nav {
+        display: none;
+        position: absolute;
+        top: var(--tamano-header);
+        left: 0;
+        right: 0;
+        background: rgba(15, 23, 42, 0.97);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--color-borde);
+        padding: 1rem;
+        z-index: 99;
+    }
+
+    /* Nav visible cuando tiene la clase nav-open */
+    header nav.nav-open {
+        display: block;
     }
 
     nav ul {
         flex-direction: column;
-        text-align: center;
+        gap: 0.25rem;
         width: 100%;
     }
 
     nav a {
         display: block;
-        padding: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-md);
+    }
+
+    nav a:hover {
+        background-color: rgba(255, 255, 255, 0.05);
     }
 
     main {
@@ -614,11 +666,17 @@ footer a:hover {
     .productos-grid {
         grid-template-columns: 1fr;
     }
+
+    /* El panel del carrito ocupa todo el ancho en mobile */
+    .carrito-panel {
+        width: calc(100vw - 2rem);
+        right: -1rem;
+    }
 }
 
 @media (max-width: 480px) {
     header h1 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 
     .tarjeta {

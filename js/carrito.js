@@ -35,27 +35,103 @@ function guardarCarritoEnLocalStorage() {
 
 // Expone las funciones globalmente
 window.agregarAlCarrito = function(producto) {
+  // Usamos listadoProductos como fuente de verdad del stock actual
+  const productoActual = (typeof listadoProductos !== 'undefined')
+    ? listadoProductos.find(p => p.id === producto.id)
+    : producto;
+
+  const stockActual = productoActual && productoActual.stock !== undefined
+    ? productoActual.stock
+    : undefined;
+
+  // Verificar stock antes de agregar
+  if (stockActual !== undefined && stockActual <= 0) {
+    mostrarNotificacion('Sin stock disponible para este producto');
+    return;
+  }
+
   // Verificamos si el producto ya existe en el carrito
   const existe = carrito.find(item => item.id === producto.id);
-  
   if (existe) {
     existe.cantidad++;
   } else {
-    // Agregamos una copia del producto con cantidad inicial 1
     carrito.push({ ...producto, cantidad: 1 });
   }
-  
+
   guardarCarritoEnLocalStorage();
   renderizarCarrito();
-  
-  // Opcional: mostrar un mensajito o animación
   mostrarNotificacion(`"${producto.nombre}" añadido al carrito`);
+
+  // Actualizar stock localmente y en Supabase
+  if (stockActual !== undefined && productoActual) {
+    const nuevoStock = stockActual - 1;
+    productoActual.stock = nuevoStock;
+
+    // Actualizar DOM
+    const stockEl = document.getElementById(`stock-${producto.id}`);
+    if (stockEl) {
+      stockEl.textContent = nuevoStock > 0 ? `Stock disponible: ${nuevoStock}` : 'Sin stock';
+      stockEl.style.color = nuevoStock <= 3 ? '#ef4444' : 'var(--color-texto-suave)';
+    }
+
+    const btn = document.getElementById(`btn-carrito-${producto.id}`);
+    if (btn && nuevoStock <= 0) {
+      btn.disabled = true;
+      btn.textContent = 'Agotado';
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    }
+
+    // Persistir en Supabase (sin bloquear la UI)
+    if (typeof SUPABASE_URL !== 'undefined') {
+      fetch(`${SUPABASE_URL}/rest/v1/productos?id=eq.${producto.id}`, {
+        method: 'PATCH',
+        headers: SUPABASE_HEADERS,
+        body: JSON.stringify({ stock: nuevoStock })
+      }).catch(err => console.error('Error actualizando stock:', err));
+    }
+  }
 };
 
 window.eliminarDelCarrito = function(id) {
+  const itemEnCarrito = carrito.find(item => item.id === id);
+  const cantidadRestaurar = itemEnCarrito ? itemEnCarrito.cantidad : 1;
+
   carrito = carrito.filter(item => item.id !== id);
   guardarCarritoEnLocalStorage();
   renderizarCarrito();
+
+  // Restaurar stock
+  const productoActual = (typeof listadoProductos !== 'undefined')
+    ? listadoProductos.find(p => p.id === id)
+    : null;
+
+  if (productoActual && productoActual.stock !== undefined) {
+    const nuevoStock = productoActual.stock + cantidadRestaurar;
+    productoActual.stock = nuevoStock;
+
+    const stockEl = document.getElementById(`stock-${id}`);
+    if (stockEl) {
+      stockEl.textContent = `Stock disponible: ${nuevoStock}`;
+      stockEl.style.color = nuevoStock <= 3 ? '#ef4444' : 'var(--color-texto-suave)';
+    }
+
+    const btn = document.getElementById(`btn-carrito-${id}`);
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🛒';
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+
+    if (typeof SUPABASE_URL !== 'undefined') {
+      fetch(`${SUPABASE_URL}/rest/v1/productos?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: SUPABASE_HEADERS,
+        body: JSON.stringify({ stock: nuevoStock })
+      }).catch(err => console.error('Error restaurando stock:', err));
+    }
+  }
 };
 
 function renderizarCarrito() {
