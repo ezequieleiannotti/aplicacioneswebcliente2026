@@ -1,5 +1,10 @@
+/*
+ * HOJA DE ESTILOS PRINCIPAL
+ * Define la identidad visual, el layout y los componentes de toda la tienda.
+ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Variables reutilizables de colores, tamaños, sombras y bordes. */
 :root {
     --color-primario: #818cf8;       /* Índigo suave y elegante */
     --color-secundario: #6366f1;     /* Índigo un poco más oscuro */
@@ -26,12 +31,14 @@
     --radius-xl: 24px;
 }
 
+/* Normalización básica para evitar márgenes y tamaños inconsistentes. */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Layout general de la aplicación. */
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Tipografía premium */
     background-color: var(--color-fondo);
@@ -190,6 +197,7 @@ header nav ul li a:hover {
 
 .carrito-item {
     display: flex;
+    align-items: center;
     gap: 12px;
     padding: 10px;
     border-bottom: 1px solid var(--color-borde);

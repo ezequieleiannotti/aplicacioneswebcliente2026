@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout - Finalizar Compra</title>
-  <link rel="stylesheet" href="estilos.css">
+  <link rel="stylesheet" href="CSS/estilos.css">
   <style>
     .checkout-container {
       display: grid;
@@ -197,32 +197,9 @@
         </form>
       </div>
 
-      <!-- Resumen de Orden -->
+      <!-- Resumen de Orden (se llena dinámicamente desde carrito.js) -->
       <div class="order-summary">
         <h3>Resumen de tu Orden</h3>
-        <div class="summary-item">
-          <span>App de Ejemplo 1</span>
-          <span>$10.00</span>
-        </div>
-        <div class="summary-item">
-          <span>App de Ejemplo 3</span>
-          <span>$20.00</span>
-        </div>
-        <div class="summary-item" style="color: #64748b; margin-top: 1rem;">
-          <span>Subtotal</span>
-          <span>$30.00</span>
-        </div>
-        <div class="summary-item" style="color: #64748b;">
-          <span>Impuestos (21%)</span>
-          <span>$6.30</span>
-        </div>
-        <div class="summary-total">
-          <span>Total</span>
-          <span>$36.30</span>
-        </div>
-        <p style="font-size: 0.85rem; color: #64748b; margin-top: 1.5rem; text-align: center;">
-          Al confirmar tu pedido, aceptas nuestros Términos y Condiciones.
-        </p>
       </div>
 
     </div>
@@ -234,73 +211,10 @@
       Contacto: <a href="mailto:info@tiendaapps.com">ezequieleiannotti@gmail.com</a>
     </address>
   </footer>
-  <script src="js/nav.js"></script>
-  <script src="js/carrito.js"></script>
-  <script>
-    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Limpiar carrito al finalizar compra
-      localStorage.removeItem("carritoEcommerce");
-      
-      // Crear modal de éxito
-      const modal = document.createElement("div");
-      modal.style.position = "fixed";
-      modal.style.top = "0";
-      modal.style.left = "0";
-      modal.style.width = "100%";
-      modal.style.height = "100%";
-      modal.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      modal.style.display = "flex";
-      modal.style.justifyContent = "center";
-      modal.style.alignItems = "center";
-      modal.style.zIndex = "9999";
-      modal.style.backdropFilter = "blur(4px)";
-      
-      const modalContent = document.createElement("div");
-      modalContent.style.backgroundColor = "white";
-      modalContent.style.padding = "3rem 2rem";
-      modalContent.style.borderRadius = "16px";
-      modalContent.style.textAlign = "center";
-      modalContent.style.boxShadow = "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)";
-      modalContent.style.maxWidth = "400px";
-      modalContent.style.width = "90%";
-      modalContent.style.transform = "scale(0.8)";
-      modalContent.style.opacity = "0";
-      modalContent.style.transition = "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-      
-      modalContent.innerHTML = `
-        <div style="width: 80px; height: 80px; background-color: #10b981; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 1.5rem auto;">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <h2 style="color: #1e293b; margin-bottom: 0.5rem; font-size: 1.8rem;">¡Compra Exitosa!</h2>
-        <p style="color: #64748b; margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.5;">Tu pedido ha sido procesado correctamente. ¡Gracias por confiar en nosotros!</p>
-        <button id="btn-modal-ok" style="background: linear-gradient(135deg, var(--color-primario) 0%, #3b82f6 100%); color: white; border: none; padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: bold; border-radius: 99px; cursor: pointer; width: 100%; transition: transform 0.2s;">
-          Volver al Inicio
-        </button>
-      `;
-      
-      modal.appendChild(modalContent);
-      document.body.appendChild(modal);
-      
-      // Animación de entrada
-      setTimeout(() => {
-        modalContent.style.transform = "scale(1)";
-        modalContent.style.opacity = "1";
-      }, 10);
-      
-      // Evento para cerrar y redirigir
-      document.getElementById("btn-modal-ok").addEventListener("click", function() {
-        modalContent.style.transform = "scale(0.8)";
-        modalContent.style.opacity = "0";
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 300);
-      });
-    });
-  </script>
+  <script src="JS/nav.js"></script>
+  <script src="JS/config.js"></script>
+  <script src="JS/carrito.js"></script>
+  <script src="JS/checkout.js"></script>
 </body>
 
 </html>

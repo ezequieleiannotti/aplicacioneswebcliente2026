@@ -1041,3 +1041,255 @@ pPrecio.textContent = `$${producto.precio.toFixed(2)}`;
 **¿Cuándo uso `const` y cuándo `let`?**
 - `const` cuando el valor nunca se reasigna (objetos, funciones, la mayoría de variables).
 - `let` cuando el valor cambia (contadores, el array `carrito` que se reemplaza en `filter`).
+
+---
+
+## ACTUALIZACIONES RECIENTES — Carrito con Cantidad, Foco y Flujo de Checkout
+
+En esta sesión agregamos tres funcionalidades nuevas. Acá está explicado paso a paso qué hace cada parte y por qué.
+
+---
+
+### 1. Botones de cantidad en el carrito (`−` `cantidad` `+`)
+
+**Qué se agregó:** Cada producto en el carrito ahora tiene tres controles — restar uno, ver la cantidad actual, y sumar uno — en lugar de solo el botón de eliminar.
+
+#### La función `cambiarCantidad(id, delta)`
+
+`delta` es el cambio de cantidad: `+1` para sumar, `-1` para restar.
+
+```js
+// carrito.js
+window.cambiarCantidad = function(id, delta) {
+  const itemEnCarrito = carrito.find(item => item.id === id);
+  if (!itemEnCarrito) return;
+  // ...
+}
+```
+
+- `window.cambiarCantidad`: Se expone en el objeto global `window` para que los botones creados con `innerHTML` puedan llamarla con `onclick="cambiarCantidad(5, 1)"`.
+- `carrito.find(...)`: Busca en el array el producto con ese `id`. Si no existe, corta la función con `return`.
+
+**Caso `delta === 1` (sumar):**
+
+```js
+if (delta === 1) {
+  const stockActual = productoActual ? productoActual.stock : undefined;
+  if (stockActual !== undefined && stockActual <= 0) {
+    mostrarNotificacion('No hay más stock disponible');
+    return; // corta si no hay stock
+  }
+
+  itemEnCarrito.cantidad++;           // suma 1 en el carrito
+  productoActual.stock = stockActual - 1; // descuenta del stock local
+
+  // Actualiza el texto de stock en el DOM
+  const stockEl = document.getElementById(`stock-${id}`);
+  if (stockEl) stockEl.textContent = `Stock disponible: ${nuevoStock}`;
+
+  // Persiste el nuevo stock en Supabase (sin bloquear la pantalla)
+  fetch(`${SUPABASE_URL}/rest/v1/productos?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: SUPABASE_HEADERS,
+    body: JSON.stringify({ stock: nuevoStock })
+  }).catch(err => console.error(err));
+}
+```
+
+- `.catch(err => ...)`: El `fetch` del PATCH puede fallar si no hay internet. Al encadenar `.catch()`, capturamos el error sin bloquear nada. La UI ya actualizó el stock localmente, el servidor se actualiza en segundo plano.
+
+**Caso `delta === -1` (restar):**
+
+```js
+} else if (delta === -1) {
+  if (itemEnCarrito.cantidad === 1) {
+    eliminarDelCarrito(id); // si queda 1, lo elimina directo
+    return;
+  }
+  itemEnCarrito.cantidad--;      // resta 1
+  productoActual.stock += 1;    // devuelve 1 al stock
+  // ... actualiza DOM y Supabase igual que en el caso +1
+}
+```
+
+- Si la cantidad del item ya es 1 y el usuario aprieta `−`, tiene sentido eliminarlo del todo. En lugar de llegar a cantidad = 0 (que no tiene sentido tener 0 de algo en el carrito), directamente llamamos a `eliminarDelCarrito(id)` que ya maneja la lógica completa de restaurar todo el stock acumulado.
+
+**Los botones en el HTML generado:**
+
+```js
+itemDiv.innerHTML = `
+  <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
+  <span>${item.cantidad}</span>
+  <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+  <button onclick="eliminarDelCarrito(${item.id})">✖</button>
+`;
+```
+
+- `onclick="cambiarCantidad(${item.id}, -1)"`: Template literal que genera el handler directamente en el HTML. El `id` se incrusta en tiempo de renderizado. Cuando el usuario hace clic, el navegador llama a `cambiarCantidad(5, -1)` (por ejemplo).
+
+---
+
+### 2. Bug: el carrito se cerraba al hacer clic en `+` o `−`
+
+**Qué pasaba:** Al hacer clic en cualquier botón del carrito, la ventanita del panel se cerraba sola.
+
+**Por qué pasaba:** El panel se muestra con CSS usando `:focus-within`. Esta pseudo-clase se activa cuando *cualquier hijo* del `.carrito` tiene el foco del teclado/mouse.
+
+Cuando `renderizarCarrito()` se ejecuta, hace esto:
+
+```js
+contenedor.innerHTML = ""; // BORRA todos los elementos del DOM
+// ...
+contenedor.appendChild(itemDiv); // reconstruye desde cero
+```
+
+Al borrar el `innerHTML`, el botón que el usuario acababa de apretar deja de existir en el DOM. El foco se "escapa" al `body` (fuera del `.carrito`). Entonces `:focus-within` deja de matchear → el panel se oculta.
+
+**La solución — detectar si el panel estaba abierto y devolver el foco:**
+
+```js
+function renderizarCarrito() {
+  const contenedor = document.getElementById("carrito-items-container");
+  const carritoDiv = contenedor.closest('.carrito'); // sube en el árbol DOM hasta el div padre
+
+  // ANTES de borrar el innerHTML, guardamos si había foco adentro
+  const panelAbierto = carritoDiv && carritoDiv.matches(':focus-within');
+
+  contenedor.innerHTML = ""; // borra y reconstruye
+  // ... (todo el render normal)
+
+  // DESPUÉS de reconstruir, si estaba abierto, volvemos a enfocar el div
+  if (panelAbierto && carritoDiv) {
+    carritoDiv.focus(); // activa :focus-within → el panel queda visible
+  }
+}
+```
+
+- `.closest('.carrito')`: Método del DOM que sube por los ancestros del elemento hasta encontrar uno que matchee el selector. Es como subir por el árbol HTML buscando al padre con esa clase.
+- `.matches(':focus-within')`: Devuelve `true` si el elemento o alguno de sus descendientes tiene el foco en este momento. Lo evaluamos **antes** de borrar el DOM para guardar el estado.
+- `.focus()`: Programa dar el foco al `div.carrito` (que tiene `tabindex="0"`, lo que permite que reciba foco). Al tener foco, `:focus-within` matchea y el panel se mantiene visible.
+
+---
+
+### 3. `renderizarCarrito` funciona en cualquier página
+
+**El problema original:** `renderizarCarrito()` hacía esto:
+
+```js
+function renderizarCarrito() {
+  const contenedor = document.getElementById("carrito-items-container");
+  const totalTexto = document.getElementById("carrito-total-texto");
+
+  if (!contenedor || !totalTexto) return; // salía acá en checkout.html
+  // ...
+  renderizarCheckoutSummary(totalPrecio); // nunca llegaba acá
+}
+```
+
+En `checkout.html` no existe `#carrito-items-container` (es solo el formulario de pago), entonces la función salía con `return` antes de llegar a `renderizarCheckoutSummary`. El resumen de la orden nunca se llenaba con los productos reales.
+
+**La solución — separar las dos responsabilidades:**
+
+```js
+function renderizarCarrito() {
+  // 1. Calcular totales SIEMPRE (todas las páginas los necesitan)
+  let totalPrecio = 0;
+  let totalCantidad = 0;
+  carrito.forEach(item => {
+    totalPrecio += item.precio * item.cantidad;
+    totalCantidad += item.cantidad;
+  });
+
+  // 2. Actualizar badges SIEMPRE (el numerito rojo del ícono)
+  badges.forEach(badge => { badge.textContent = totalCantidad; });
+
+  // 3. Renderizar el panel del carrito SOLO si existe en esta página
+  if (contenedor && totalTexto) {
+    // ... lógica del popup del carrito (index, catalogo, etc.)
+  }
+
+  // 4. Llenar el resumen de checkout SIEMPRE que haya un .order-summary
+  renderizarCheckoutSummary(totalPrecio);
+}
+```
+
+Ahora la función es **agnóstica a la página**: hace lo que puede con los elementos que existen en el HTML actual y nunca rompe si falta alguno.
+
+---
+
+### 4. Nuevo flujo de Checkout en 3 pasos
+
+**Flujo anterior:**
+```
+Carrito popup → "Finalizar Compra" → checkout.html (formulario de pago directo)
+```
+
+**Flujo nuevo:**
+```
+Carrito popup → "Finalizar Compra" → carrito.html (revisar + editar) → "Ir a pagar" → checkout.html
+```
+
+#### Por qué una página intermedia (`carrito.html`)
+
+En una tienda real, el usuario necesita:
+1. Ver qué va a comprar antes de pagar
+2. Poder corregir cantidades sin volver al catálogo
+3. Ver el total con impuestos antes de comprometer su tarjeta
+
+El `carrito.html` es una vista de pantalla completa que usa exactamente las mismas funciones del carrito (`cambiarCantidad`, `eliminarDelCarrito`, `renderizarCarrito`) porque tiene los mismos ids en el HTML: `carrito-items-container` y `carrito-total-texto`.
+
+#### `MutationObserver` — detectar cambios en el DOM
+
+En `carrito.html` necesitamos que los totales (subtotal, impuestos, total) se actualicen cada vez que el usuario cambia la cantidad de un producto. No tenemos un evento directo para eso, pero sí podemos observar si el contenedor de items cambió:
+
+```js
+// carrito.html — script inline
+function actualizarVistaCarritoPage() {
+  const carritoGuardado = JSON.parse(localStorage.getItem('carritoEcommerce') || '[]');
+  const totalPrecio = carritoGuardado.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+  const impuestos = totalPrecio * 0.21;
+
+  document.getElementById('subtotal-texto').textContent = `$${totalPrecio.toFixed(2)}`;
+  document.getElementById('impuestos-texto').textContent = `$${impuestos.toFixed(2)}`;
+  document.getElementById('carrito-total-texto').textContent = `$${(totalPrecio + impuestos).toFixed(2)}`;
+}
+
+// Observar el contenedor de items para detectar cuando se modifica
+const observer = new MutationObserver(actualizarVistaCarritoPage);
+observer.observe(contenedor, { childList: true, subtree: true });
+```
+
+- `MutationObserver`: API del navegador que "espía" un elemento del DOM. Cada vez que sus hijos cambian (cuando `renderizarCarrito` reconstruye los items), dispara la función que le pasamos.
+- `{ childList: true, subtree: true }`: Configuración del observer. `childList` observa hijos directos, `subtree` también observa descendientes más profundos.
+- `reduce((acc, item) => acc + ..., 0)`: Método de array más compacto que `forEach` para acumular un valor. Parte desde 0 y suma `precio × cantidad` de cada item.
+
+#### Mostrar/ocultar el resumen según si el carrito tiene items
+
+```js
+if (carritoGuardado.length > 0) {
+  resumen.style.display = 'block';   // muestra subtotal/impuestos/total
+  acciones.style.display = 'flex';   // muestra los botones
+} else {
+  resumen.style.display = 'none';    // oculta todo si el carrito está vacío
+  acciones.style.display = 'none';
+}
+```
+
+Manipular `style.display` directamente desde JS es la forma más directa de mostrar u ocultar bloques enteros. Alternativa equivalente: agregar/quitar una clase CSS `.oculto { display: none; }` con `classList.toggle`.
+
+---
+
+### Resumen de conceptos nuevos de esta sesión
+
+| Concepto | Dónde se usa | Para qué sirve |
+|---|---|---|
+| `window.cambiarCantidad` | `carrito.js` | Exponer función al scope global para usarla en `onclick=""` dentro de `innerHTML` |
+| `delta` como parámetro | `cambiarCantidad(id, delta)` | Un solo parámetro que determina la dirección del cambio: +1 o -1 |
+| `.closest(selector)` | `renderizarCarrito` | Subir por el árbol DOM hasta encontrar el ancestro con esa clase |
+| `.matches(selector)` | `renderizarCarrito` | Verificar si un elemento matchea un selector CSS en este momento |
+| `:focus-within` | CSS del carrito | Pseudo-clase que se activa cuando cualquier descendiente tiene el foco |
+| `.focus()` | `renderizarCarrito` | Programar el foco en un elemento para mantener `:focus-within` activo |
+| `MutationObserver` | `carrito.html` | Detectar cuando los hijos de un elemento cambian en el DOM |
+| `reduce()` | `carrito.html` | Acumular un valor recorriendo un array (como `forEach` pero retorna el resultado) |
+| `.catch()` encadenado | PATCH de stock | Capturar errores de `fetch` sin usar `try/catch`, sin bloquear la UI |
+| `style.display` desde JS | `carrito.html` | Mostrar u ocultar bloques dinámicamente según el estado de la app |

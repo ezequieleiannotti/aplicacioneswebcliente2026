@@ -1,5 +1,5 @@
-// js/nav.js
-// Menú hamburguesa para mobile
+// EVENTO: DOMContentLoaded
+// Espera a que el HTML esté listo y configura el menú responsive de navegación.
 
 document.addEventListener('DOMContentLoaded', function () {
   const hamburgerBtn = document.querySelector('.hamburger-btn');
@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (!hamburgerBtn || !nav) return;
 
+  // Abre o cierra el menú cuando el usuario pulsa el botón hamburguesa.
   hamburgerBtn.addEventListener('click', function (e) {
     e.stopPropagation();
     const isOpen = nav.classList.toggle('nav-open');
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     hamburgerBtn.innerHTML = isOpen ? '&#x2715;' : '&#x2630;';
   });
 
-  // Cerrar al hacer click en un link
+  // Cierra el menú después de que el usuario elige una opción.
   nav.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('click', function () {
       nav.classList.remove('nav-open');
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Cerrar al hacer click fuera
+  // Cierra el menú si se hace clic fuera del encabezado.
   document.addEventListener('click', function (e) {
     if (!e.target.closest('header')) {
       nav.classList.remove('nav-open');

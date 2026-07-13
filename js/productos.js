@@ -3,10 +3,13 @@
 // Usamos const porque este arreglo nunca se reasigna.
 // Cada elemento es un objeto con las propiedades del producto.
 // ─────────────────────────────────────────────
-// En lugar de un arreglo estático, ahora guardaremos los productos que vengan de Supabase
+// En lugar de un arreglo estático, ahora guardaremos los productos que vengan de Supabase.
 let listadoProductos = [];
 
-// Función para obtener productos desde Supabase
+// ─────────────────────────────────────────────
+// FUNCIÓN: obtenerProductosDeSupabase()
+// Consulta todos los productos, los guarda en memoria y devuelve el resultado.
+// ─────────────────────────────────────────────
 async function obtenerProductosDeSupabase() {
   try {
     const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/productos?select=*`, {
@@ -271,6 +274,10 @@ function cargarDetalleProducto() {
   });
 }
 
+// ─────────────────────────────────────────────
+// FUNCIÓN: cargarComentariosProducto(productId)
+// Obtiene las reseñas de un producto y las transforma en tarjetas dentro del DOM.
+// ─────────────────────────────────────────────
 function cargarComentariosProducto(productId) {
   fetch(`${SUPABASE_URL}/rest/v1/comentarios?producto_id=eq.${productId}&select=*`, {
     headers: SUPABASE_HEADERS
@@ -400,6 +407,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const searchInput = document.getElementById('search-input');
   const searchButton = document.getElementById('search-button');
   
+  // FUNCIÓN: realizarBusqueda()
+  // Filtra productos por nombre, categoría o descripción mientras el usuario escribe.
   function realizarBusqueda() {
     const texto = searchInput.value.toLowerCase();
     const productosFiltrados = listadoProductos.filter(p => 
