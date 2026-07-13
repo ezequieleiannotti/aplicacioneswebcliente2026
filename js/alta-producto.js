@@ -1,3 +1,5 @@
+// MÓDULO: alta de productos
+// Valida el formulario, muestra una vista previa y registra productos en Supabase.
 // ─────────────────────────────────────────────
 // EVENTO: DOMContentLoaded
 // Esperamos que el HTML esté 100% cargado antes de buscar elementos.
@@ -43,6 +45,34 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ─────────────────────────────────────────────
+  // PREVIEW EN VIVO de la imagen
+  // Cada vez que el usuario escribe/pega una URL, intentamos mostrarla
+  // ─────────────────────────────────────────────
+  const inputImagen = document.querySelector("#imagen");
+  const previewContainer = document.querySelector("#imagen-preview-container");
+  const previewImg = document.querySelector("#imagen-preview");
+
+  if (inputImagen) {
+    inputImagen.addEventListener("input", function () {
+      const url = this.value.trim();
+
+      if (url === "") {
+        previewContainer.style.display = "none";
+        return;
+      }
+
+      // Mostramos el contenedor y cargamos la URL
+      previewContainer.style.display = "block";
+      previewImg.src = url;
+
+      // Si la URL no es una imagen válida, mostramos el placeholder
+      previewImg.onerror = function () {
+        this.src = "https://placehold.co/280x160?text=URL+inválida";
+      };
+    });
+  }
+
+  // ─────────────────────────────────────────────
   // EVENTO: submit del formulario
   // Se dispara cuando el usuario hace clic en "Registrar Producto"
   // ─────────────────────────────────────────────
@@ -57,13 +87,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const descripcion = document.querySelector("#descripcion").value;
     const categoria = document.querySelector("#categoria").value;
     const stock = document.querySelector("#stock").value;
+    const imagen = document.querySelector("#imagen").value.trim();
 
     const nuevoProducto = {
       nombre: nombre,
       precio: parseFloat(precio),
       descripcion: descripcion,
       categoria: categoria,
-      stock: parseInt(stock) || 0
+      stock: parseInt(stock) || 0,
+      imagen: imagen || null
       // Nota: Supabase generará el 'id' y el 'created_at' automáticamente
     };
 
@@ -97,6 +129,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       alert(`¡Éxito! El producto "${nuevoProducto.nombre}" fue registrado correctamente en la base de datos.`);
       formulario.reset();
+      // Ocultar el preview de imagen al limpiar el formulario
+      if (previewContainer) previewContainer.style.display = "none";
       
     } catch (error) {
       console.error("Hubo un problema:", error);

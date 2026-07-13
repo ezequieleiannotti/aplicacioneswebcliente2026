@@ -3,10 +3,13 @@
 // Usamos const porque este arreglo nunca se reasigna.
 // Cada elemento es un objeto con las propiedades del producto.
 // ─────────────────────────────────────────────
-// En lugar de un arreglo estático, ahora guardaremos los productos que vengan de Supabase
+// En lugar de un arreglo estático, ahora guardaremos los productos que vengan de Supabase.
 let listadoProductos = [];
 
-// Función para obtener productos desde Supabase
+// ─────────────────────────────────────────────
+// FUNCIÓN: obtenerProductosDeSupabase()
+// Consulta todos los productos, los guarda en memoria y devuelve el resultado.
+// ─────────────────────────────────────────────
 async function obtenerProductosDeSupabase() {
   try {
     const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/productos?select=*`, {
@@ -100,6 +103,15 @@ function crearTarjetaProducto(producto) {
   aVerMas.className = "btn";
   aVerMas.textContent = "Ver más";
 
+  // ── Stock ──
+  const stockActual = producto.stock !== undefined ? producto.stock : 10;
+  const pStock = document.createElement("p");
+  pStock.id = `stock-${producto.id}`;
+  pStock.style.fontSize = "0.8rem";
+  pStock.style.color = stockActual <= 3 ? "#ef4444" : "var(--color-texto-suave)";
+  pStock.style.marginBottom = "0.5rem";
+  pStock.textContent = stockActual > 0 ? `Stock disponible: ${stockActual}` : "Sin stock";
+
   // ── Ensamblado final ──
   // appendChild agrega cada pieza dentro del article en el orden correcto
   article.appendChild(img);
@@ -109,21 +121,28 @@ function crearTarjetaProducto(producto) {
   article.appendChild(pDesc);
   article.appendChild(pCat);
   article.appendChild(divRating);
+  article.appendChild(pStock);
 
   // ── Contenedor de Botones ──
   const divBotones = document.createElement("div");
   divBotones.style.display = "flex";
   divBotones.style.gap = "10px";
   divBotones.style.marginTop = "10px";
-  
+
   aVerMas.style.flex = "1";
-  
+
   const btnCarrito = document.createElement("button");
+  btnCarrito.id = `btn-carrito-${producto.id}`;
   btnCarrito.className = "btn btn-comprar";
-  btnCarrito.textContent = "🛒";
+  btnCarrito.textContent = stockActual > 0 ? "🛒" : "Agotado";
   btnCarrito.title = "Añadir al carrito";
   btnCarrito.style.padding = "0.5rem 1rem";
   btnCarrito.style.flex = "0";
+  if (stockActual <= 0) {
+    btnCarrito.disabled = true;
+    btnCarrito.style.opacity = "0.5";
+    btnCarrito.style.cursor = "not-allowed";
+  }
   btnCarrito.addEventListener("click", () => {
     if (window.agregarAlCarrito) {
       window.agregarAlCarrito(producto);
@@ -255,6 +274,10 @@ function cargarDetalleProducto() {
   });
 }
 
+// ─────────────────────────────────────────────
+// FUNCIÓN: cargarComentariosProducto(productId)
+// Obtiene las reseñas de un producto y las transforma en tarjetas dentro del DOM.
+// ─────────────────────────────────────────────
 function cargarComentariosProducto(productId) {
   fetch(`${SUPABASE_URL}/rest/v1/comentarios?producto_id=eq.${productId}&select=*`, {
     headers: SUPABASE_HEADERS
@@ -384,6 +407,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const searchInput = document.getElementById('search-input');
   const searchButton = document.getElementById('search-button');
   
+  // FUNCIÓN: realizarBusqueda()
+  // Filtra productos por nombre, categoría o descripción mientras el usuario escribe.
   function realizarBusqueda() {
     const texto = searchInput.value.toLowerCase();
     const productosFiltrados = listadoProductos.filter(p => 

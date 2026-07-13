@@ -653,3 +653,643 @@ En lugar de saturar la pantalla con bloques grandes de colores brillantes, aplic
 - **Forma de Píldora (`Pill Shape`):** El botón del carrito tiene `border-radius: 99px;`, dándole una forma redondeada súper moderna.
 - **Badge Integrado:** El número de productos (`.badge`) perdió las sombras duras y el color rojo de error. Ahora utiliza el azul índigo primario del sitio y está centrado usando `display: flex`, integrándose pacíficamente en la barra superior.
 - **Icono Universal:** Cambiamos el vector SVG genérico por el contorno universal de un carrito de supermercado (`Lucide/Feather icons`), garantizando que cualquier usuario entienda su función en un segundo.
+
+---
+
+## IDEAS PARA SUMAR A LA APP
+
+- **Sistema de favoritos** — guardar productos en localStorage como "wishlist"
+- **Ordenar productos** — dropdown para ordenar por precio (menor a mayor, mayor a menor)
+- **Paginación** — mostrar de a 6 productos y un botón "ver más"
+- **Historial de pedidos** — guardar en Supabase las compras del checkout
+- **Registro de usuarios** — usar Supabase Auth para login/registro real
+- **Sistema de stock** — agregar campo `stock` en Supabase y deshabilitar el botón si es 0
+- **Precio con descuento** — mostrar precio original tachado y precio rebajado
+
+---
+
+## CONCEPTOS MODERNOS DE JAVASCRIPT (con ejemplos del proyecto)
+
+---
+
+### `async` — "Esta función hace cosas que tardan"
+
+Cuando ponés `async` delante de una función, le estás diciendo a JavaScript:
+*"Esta función puede tener operaciones lentas (como pedir datos a internet). No rompas todo mientras espera."*
+
+```js
+// productos.js — línea 10
+async function obtenerProductosDeSupabase() {
+  // Esta función es async porque adentro vamos a esperar datos de internet
+}
+```
+
+**Sin `async`**, si intentás usar `await`, el código directamente no funciona — da error de sintaxis.
+
+---
+
+### `await` — "Pará acá y esperá que esto termine"
+
+`await` solo se puede usar DENTRO de una función `async`. Le dice al navegador:
+*"Antes de seguir con la próxima línea, esperá que esta operación termine."*
+
+```js
+// productos.js — línea 12-20
+async function obtenerProductosDeSupabase() {
+  try {
+    const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/productos?select=*`, {
+    //                ↑ PARA acá y espera que llegue la respuesta del servidor
+      headers: SUPABASE_HEADERS
+    });
+
+    const datos = await respuesta.json();
+    //            ↑ PARA acá y espera que se parsee el JSON
+
+    return datos; // recién acá continúa
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    return [];
+  }
+}
+```
+
+**Analogía real:** Pedís un café. `await` es quedarte parado en la barra esperando. Sin `await`, agarrarías el vaso vacío y lo llevarías a la mesa antes de que lo llenen.
+
+---
+
+### Por qué es necesario esperar (el problema sin async/await)
+
+```js
+// MAL — sin await, datos llega VACÍO porque la petición no terminó
+function obtenerProductosMal() {
+  const respuesta = fetch(`${SUPABASE_URL}/rest/v1/productos?select=*`);
+  const datos = respuesta.json(); // ERROR: respuesta es una Promise, no tiene .json() directo
+  return datos; // esto es undefined o una Promise sin resolver
+}
+
+// BIEN — con await, esperamos cada paso
+async function obtenerProductosBien() {
+  const respuesta = await fetch(...); // esperamos la respuesta HTTP
+  const datos = await respuesta.json(); // esperamos que se convierta a objeto JS
+  return datos; // ahora sí tiene los productos
+}
+```
+
+---
+
+### `try` / `catch` — Manejar errores en código async
+
+Cuando algo puede fallar (como una petición de red), envolvés el código en `try/catch`.
+
+```js
+// productos.js — línea 11-27
+try {
+  // Intentar esto...
+  const respuesta = await fetch(...);
+  const datos = await respuesta.json();
+  return datos;
+} catch (error) {
+  // Si CUALQUIER línea del try falla, caemos acá
+  console.error("Error al obtener productos:", error);
+  return []; // devolvemos array vacío para no romper la app
+}
+```
+
+Sin `try/catch`, si el servidor está caído o no hay internet, la app tira un error sin manejar y el usuario ve una pantalla rota.
+
+---
+
+### `fetch` — Pedir datos a internet
+
+`fetch` es la función del navegador para hacer peticiones HTTP (GET, POST, etc.).
+
+```js
+// productos.js — línea 12
+const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/productos?select=*`, {
+  headers: SUPABASE_HEADERS
+  // headers = "credenciales" que mandamos para que Supabase nos deje entrar
+});
+
+// respuesta.ok → true si el servidor respondió con código 200-299 (éxito)
+if (!respuesta.ok) {
+  throw new Error("Error en la respuesta de Supabase");
+}
+
+// .json() convierte el texto de la respuesta en un array/objeto de JavaScript
+const datos = await respuesta.json();
+```
+
+**¿Qué son los `headers`?** Datos extra que viajan con la petición. Nuestra `SUPABASE_KEY` va en el header `apikey` para autorizarnos.
+
+---
+
+### Promise — Una promesa de valor futuro
+
+`fetch` y `.json()` devuelven **Promises** (promesas). Una Promise es un objeto que representa algo que todavía no terminó pero va a terminar (o fallar).
+
+3 estados posibles:
+- **Pending** → esperando
+- **Fulfilled** → llegó con éxito
+- **Rejected** → falló
+
+Hay dos formas de trabajar con ellas:
+
+**Forma moderna — `async/await`** (recomendada):
+```js
+async function obtenerProductosDeSupabase() {
+  const respuesta = await fetch(...); // espera
+  const datos = await respuesta.json(); // espera
+  return datos;
+}
+```
+
+**Forma clásica — `.then()` / `.catch()`** (usada en `cargarDetalleProducto`):
+```js
+// productos.js — línea 214
+fetch(`${SUPABASE_URL}/rest/v1/productos?id=eq.${productId}&select=*`, {
+  headers: SUPABASE_HEADERS
+})
+.then(respuesta => respuesta.json())   // cuando llegó, parsear
+.then(productos => {                    // cuando parseó, usar
+  const producto = productos[0];
+  document.getElementById("detalle-nombre").textContent = producto.nombre;
+  // ...
+})
+.catch(error => {                       // si algo falló
+  console.error("Error:", error);
+});
+```
+
+Ambas hacen exactamente lo mismo. `async/await` es más legible porque parece código normal de arriba a abajo.
+
+---
+
+### `localStorage` — Guardar datos en el navegador
+
+El navegador tiene una pequeña "base de datos" local llamada `localStorage`. Los datos **sobreviven a cerrar el navegador**.
+
+```js
+// carrito.js — línea 33
+// Guardar (solo acepta texto, por eso usamos JSON.stringify)
+localStorage.setItem("carritoEcommerce", JSON.stringify(carrito));
+// JSON.stringify convierte el array [{ id: 1, nombre: "App" }] → '[ { "id": 1, "nombre": "App" } ]'
+
+// carrito.js — línea 27
+// Leer
+const guardado = localStorage.getItem("carritoEcommerce");
+if (guardado) {
+  carrito = JSON.parse(guardado); // convierte el texto de vuelta a array
+}
+```
+
+**¿Por qué `JSON.stringify` y `JSON.parse`?** `localStorage` solo guarda **texto**. `stringify` serializa el objeto a texto, `parse` lo deserializa de vuelta.
+
+---
+
+### Arrow Functions `() => {}` — Funciones cortas
+
+Son una forma abreviada de escribir funciones anónimas.
+
+```js
+// Función tradicional
+function doble(n) {
+  return n * 2;
+}
+
+// Arrow function equivalente
+const doble = n => n * 2;
+
+// Usada en carrito.js — línea 75
+carrito.forEach(item => {
+  totalPrecio += item.precio * item.cantidad;
+  totalCantidad += item.cantidad;
+});
+```
+
+Si solo hay una línea de retorno, se puede omitir `{}` y `return`.
+
+---
+
+### `forEach` / `filter` / `find` — Métodos de arrays
+
+Reemplazan el `for` clásico con código más expresivo.
+
+**`forEach`** — hacer algo con cada elemento (no devuelve nada):
+```js
+// carrito.js — línea 102
+badges.forEach(badge => {
+  badge.textContent = totalCantidad; // actualiza cada badge en la página
+});
+```
+
+**`filter`** — quedarse con los que cumplen una condición (devuelve un NUEVO array):
+```js
+// carrito.js — línea 56
+carrito = carrito.filter(item => item.id !== id);
+// Devuelve todos los items EXCEPTO el que tiene ese id → lo "elimina"
+
+// productos.js — línea 389
+const productosFiltrados = listadoProductos.filter(p =>
+  p.nombre.toLowerCase().includes(texto)
+);
+// Devuelve solo los productos cuyo nombre contiene el texto buscado
+```
+
+**`find`** — encontrar el primero que cumple la condición (devuelve el OBJETO o `undefined`):
+```js
+// carrito.js — línea 39
+const existe = carrito.find(item => item.id === producto.id);
+if (existe) {
+  existe.cantidad++; // si ya está, aumentamos la cantidad
+} else {
+  carrito.push({ ...producto, cantidad: 1 }); // si no está, lo agregamos
+}
+```
+
+**Diferencia clave:**
+| Método | Devuelve | Uso típico |
+|---|---|---|
+| `forEach` | nada | ejecutar algo por cada elemento |
+| `filter` | nuevo array | quedarme con un subconjunto |
+| `find` | un objeto o `undefined` | buscar un elemento específico |
+
+---
+
+### Spread Operator `...` — Copiar objetos
+
+```js
+// carrito.js — línea 45
+carrito.push({ ...producto, cantidad: 1 });
+//             ↑ copia TODAS las propiedades de producto
+//                           ↑ y agrega (o pisa) cantidad: 1
+```
+
+Sin el spread estarías guardando la **referencia** al objeto original. Si `producto` cambia después, también cambiaría el que está en el carrito. El spread crea una **copia independiente**.
+
+---
+
+### `URLSearchParams` — Leer parámetros de la URL
+
+```js
+// productos.js — línea 205
+// URL actual: detalle-producto.html?id=5
+
+const urlParams = new URLSearchParams(window.location.search);
+// window.location.search → "?id=5"
+
+const productId = parseInt(urlParams.get('id'));
+// urlParams.get('id') → "5" (string)
+// parseInt(...)       → 5  (número)
+```
+
+Esto permite tener UNA sola página `detalle-producto.html` que muestra distintos productos según el `?id=` en la URL.
+
+---
+
+### `setTimeout` — Ejecutar código después de un tiempo
+
+```js
+// carrito.js — línea 186
+setTimeout(() => {
+  toast.style.opacity = "1";   // aparece
+}, 10); // espera 10 milisegundos
+
+setTimeout(() => {
+  toast.style.opacity = "0";   // desaparece
+  setTimeout(() => toast.remove(), 300); // después de la animación, lo borra del DOM
+}, 3000); // espera 3 segundos
+```
+
+Se usa para el "toast" de notificación al agregar un producto al carrito.
+
+---
+
+### Template Literals — Strings con variables adentro
+
+Con backticks `` ` `` podés meter variables usando `${}`:
+
+```js
+// productos.js — línea 65
+pPrecio.textContent = `$${producto.precio.toFixed(2)}`;
+// Si precio es 1500 → "$1500.00"
+
+// config.js — línea 10
+'Authorization': `Bearer ${SUPABASE_KEY}`
+// → "Bearer sb_publishable_DrFa6s-..."
+```
+
+---
+
+### FLUJO COMPLETO DE LA APP (de arriba a abajo)
+
+```
+1. Usuario abre catalogo.html
+2. Navegador carga los scripts en orden:
+      config.js   → define SUPABASE_URL y SUPABASE_HEADERS
+      carrito.js  → carga el carrito de localStorage
+      productos.js → registra el DOMContentLoaded
+
+3. HTML termina de cargar → dispara DOMContentLoaded
+
+4. productos.js detecta que existe #productos-container
+   → llama a obtenerProductosDeSupabase() [función async]
+      → fetch a Supabase [await → espera respuesta]
+      → respuesta.json()  [await → espera parseo]
+      → devuelve array de productos
+
+5. cargarProductos(productos) recorre el array con forEach
+   → para cada uno llama a crearTarjetaProducto()
+   → inserta cada tarjeta en el DOM con appendChild
+
+6. Usuario puede:
+   → Filtrar por categoría (click en botón → filtrarPorCategoria → cargarProductos)
+   → Buscar (input → filter sobre listadoProductos → cargarProductos)
+   → Agregar al carrito (click → agregarAlCarrito → guardar en localStorage → renderizarCarrito)
+   → Ver detalle (click "Ver más" → detalle-producto.html?id=X)
+
+7. En detalle-producto.html:
+   → URLSearchParams lee el ?id=X de la URL
+   → fetch a Supabase filtrando por ese id
+   → llena el HTML con los datos del producto
+   → hace otro fetch para cargar los comentarios de ese producto
+```
+
+---
+
+### PREGUNTAS FRECUENTES DE PARCIAL
+
+**¿Diferencia entre `==` y `===`?**
+- `==` compara valor con conversión de tipo: `"5" == 5` → `true`
+- `===` compara valor Y tipo sin conversión: `"5" === 5` → `false`
+- Siempre usar `===`.
+
+**¿Qué devuelve `filter` si ningún elemento cumple la condición?**
+- Un array vacío `[]`. Nunca devuelve `null` ni `undefined`.
+
+**¿Qué pasa si `find` no encuentra nada?**
+- Devuelve `undefined`. Siempre verificar con `if (existe)` antes de usarlo.
+
+**¿Puedo usar `await` fuera de una función `async`?**
+- No. Da error de sintaxis. Solo funciona dentro de funciones marcadas con `async`.
+
+**¿`localStorage` se comparte entre páginas del mismo sitio?**
+- Sí. Por eso el carrito persiste entre `catalogo.html`, `detalle-producto.html` y `checkout.html`.
+
+**¿Qué pasa si `fetch` falla (no hay internet)?**
+- Lanza un error que captura el `catch`. En nuestro código devolvemos `[]` para que la app no se rompa.
+
+**¿Cuándo uso `const` y cuándo `let`?**
+- `const` cuando el valor nunca se reasigna (objetos, funciones, la mayoría de variables).
+- `let` cuando el valor cambia (contadores, el array `carrito` que se reemplaza en `filter`).
+
+---
+
+## ACTUALIZACIONES RECIENTES — Carrito con Cantidad, Foco y Flujo de Checkout
+
+En esta sesión agregamos tres funcionalidades nuevas. Acá está explicado paso a paso qué hace cada parte y por qué.
+
+---
+
+### 1. Botones de cantidad en el carrito (`−` `cantidad` `+`)
+
+**Qué se agregó:** Cada producto en el carrito ahora tiene tres controles — restar uno, ver la cantidad actual, y sumar uno — en lugar de solo el botón de eliminar.
+
+#### La función `cambiarCantidad(id, delta)`
+
+`delta` es el cambio de cantidad: `+1` para sumar, `-1` para restar.
+
+```js
+// carrito.js
+window.cambiarCantidad = function(id, delta) {
+  const itemEnCarrito = carrito.find(item => item.id === id);
+  if (!itemEnCarrito) return;
+  // ...
+}
+```
+
+- `window.cambiarCantidad`: Se expone en el objeto global `window` para que los botones creados con `innerHTML` puedan llamarla con `onclick="cambiarCantidad(5, 1)"`.
+- `carrito.find(...)`: Busca en el array el producto con ese `id`. Si no existe, corta la función con `return`.
+
+**Caso `delta === 1` (sumar):**
+
+```js
+if (delta === 1) {
+  const stockActual = productoActual ? productoActual.stock : undefined;
+  if (stockActual !== undefined && stockActual <= 0) {
+    mostrarNotificacion('No hay más stock disponible');
+    return; // corta si no hay stock
+  }
+
+  itemEnCarrito.cantidad++;           // suma 1 en el carrito
+  productoActual.stock = stockActual - 1; // descuenta del stock local
+
+  // Actualiza el texto de stock en el DOM
+  const stockEl = document.getElementById(`stock-${id}`);
+  if (stockEl) stockEl.textContent = `Stock disponible: ${nuevoStock}`;
+
+  // Persiste el nuevo stock en Supabase (sin bloquear la pantalla)
+  fetch(`${SUPABASE_URL}/rest/v1/productos?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: SUPABASE_HEADERS,
+    body: JSON.stringify({ stock: nuevoStock })
+  }).catch(err => console.error(err));
+}
+```
+
+- `.catch(err => ...)`: El `fetch` del PATCH puede fallar si no hay internet. Al encadenar `.catch()`, capturamos el error sin bloquear nada. La UI ya actualizó el stock localmente, el servidor se actualiza en segundo plano.
+
+**Caso `delta === -1` (restar):**
+
+```js
+} else if (delta === -1) {
+  if (itemEnCarrito.cantidad === 1) {
+    eliminarDelCarrito(id); // si queda 1, lo elimina directo
+    return;
+  }
+  itemEnCarrito.cantidad--;      // resta 1
+  productoActual.stock += 1;    // devuelve 1 al stock
+  // ... actualiza DOM y Supabase igual que en el caso +1
+}
+```
+
+- Si la cantidad del item ya es 1 y el usuario aprieta `−`, tiene sentido eliminarlo del todo. En lugar de llegar a cantidad = 0 (que no tiene sentido tener 0 de algo en el carrito), directamente llamamos a `eliminarDelCarrito(id)` que ya maneja la lógica completa de restaurar todo el stock acumulado.
+
+**Los botones en el HTML generado:**
+
+```js
+itemDiv.innerHTML = `
+  <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
+  <span>${item.cantidad}</span>
+  <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+  <button onclick="eliminarDelCarrito(${item.id})">✖</button>
+`;
+```
+
+- `onclick="cambiarCantidad(${item.id}, -1)"`: Template literal que genera el handler directamente en el HTML. El `id` se incrusta en tiempo de renderizado. Cuando el usuario hace clic, el navegador llama a `cambiarCantidad(5, -1)` (por ejemplo).
+
+---
+
+### 2. Bug: el carrito se cerraba al hacer clic en `+` o `−`
+
+**Qué pasaba:** Al hacer clic en cualquier botón del carrito, la ventanita del panel se cerraba sola.
+
+**Por qué pasaba:** El panel se muestra con CSS usando `:focus-within`. Esta pseudo-clase se activa cuando *cualquier hijo* del `.carrito` tiene el foco del teclado/mouse.
+
+Cuando `renderizarCarrito()` se ejecuta, hace esto:
+
+```js
+contenedor.innerHTML = ""; // BORRA todos los elementos del DOM
+// ...
+contenedor.appendChild(itemDiv); // reconstruye desde cero
+```
+
+Al borrar el `innerHTML`, el botón que el usuario acababa de apretar deja de existir en el DOM. El foco se "escapa" al `body` (fuera del `.carrito`). Entonces `:focus-within` deja de matchear → el panel se oculta.
+
+**La solución — detectar si el panel estaba abierto y devolver el foco:**
+
+```js
+function renderizarCarrito() {
+  const contenedor = document.getElementById("carrito-items-container");
+  const carritoDiv = contenedor.closest('.carrito'); // sube en el árbol DOM hasta el div padre
+
+  // ANTES de borrar el innerHTML, guardamos si había foco adentro
+  const panelAbierto = carritoDiv && carritoDiv.matches(':focus-within');
+
+  contenedor.innerHTML = ""; // borra y reconstruye
+  // ... (todo el render normal)
+
+  // DESPUÉS de reconstruir, si estaba abierto, volvemos a enfocar el div
+  if (panelAbierto && carritoDiv) {
+    carritoDiv.focus(); // activa :focus-within → el panel queda visible
+  }
+}
+```
+
+- `.closest('.carrito')`: Método del DOM que sube por los ancestros del elemento hasta encontrar uno que matchee el selector. Es como subir por el árbol HTML buscando al padre con esa clase.
+- `.matches(':focus-within')`: Devuelve `true` si el elemento o alguno de sus descendientes tiene el foco en este momento. Lo evaluamos **antes** de borrar el DOM para guardar el estado.
+- `.focus()`: Programa dar el foco al `div.carrito` (que tiene `tabindex="0"`, lo que permite que reciba foco). Al tener foco, `:focus-within` matchea y el panel se mantiene visible.
+
+---
+
+### 3. `renderizarCarrito` funciona en cualquier página
+
+**El problema original:** `renderizarCarrito()` hacía esto:
+
+```js
+function renderizarCarrito() {
+  const contenedor = document.getElementById("carrito-items-container");
+  const totalTexto = document.getElementById("carrito-total-texto");
+
+  if (!contenedor || !totalTexto) return; // salía acá en checkout.html
+  // ...
+  renderizarCheckoutSummary(totalPrecio); // nunca llegaba acá
+}
+```
+
+En `checkout.html` no existe `#carrito-items-container` (es solo el formulario de pago), entonces la función salía con `return` antes de llegar a `renderizarCheckoutSummary`. El resumen de la orden nunca se llenaba con los productos reales.
+
+**La solución — separar las dos responsabilidades:**
+
+```js
+function renderizarCarrito() {
+  // 1. Calcular totales SIEMPRE (todas las páginas los necesitan)
+  let totalPrecio = 0;
+  let totalCantidad = 0;
+  carrito.forEach(item => {
+    totalPrecio += item.precio * item.cantidad;
+    totalCantidad += item.cantidad;
+  });
+
+  // 2. Actualizar badges SIEMPRE (el numerito rojo del ícono)
+  badges.forEach(badge => { badge.textContent = totalCantidad; });
+
+  // 3. Renderizar el panel del carrito SOLO si existe en esta página
+  if (contenedor && totalTexto) {
+    // ... lógica del popup del carrito (index, catalogo, etc.)
+  }
+
+  // 4. Llenar el resumen de checkout SIEMPRE que haya un .order-summary
+  renderizarCheckoutSummary(totalPrecio);
+}
+```
+
+Ahora la función es **agnóstica a la página**: hace lo que puede con los elementos que existen en el HTML actual y nunca rompe si falta alguno.
+
+---
+
+### 4. Nuevo flujo de Checkout en 3 pasos
+
+**Flujo anterior:**
+```
+Carrito popup → "Finalizar Compra" → checkout.html (formulario de pago directo)
+```
+
+**Flujo nuevo:**
+```
+Carrito popup → "Finalizar Compra" → carrito.html (revisar + editar) → "Ir a pagar" → checkout.html
+```
+
+#### Por qué una página intermedia (`carrito.html`)
+
+En una tienda real, el usuario necesita:
+1. Ver qué va a comprar antes de pagar
+2. Poder corregir cantidades sin volver al catálogo
+3. Ver el total con impuestos antes de comprometer su tarjeta
+
+El `carrito.html` es una vista de pantalla completa que usa exactamente las mismas funciones del carrito (`cambiarCantidad`, `eliminarDelCarrito`, `renderizarCarrito`) porque tiene los mismos ids en el HTML: `carrito-items-container` y `carrito-total-texto`.
+
+#### `MutationObserver` — detectar cambios en el DOM
+
+En `carrito.html` necesitamos que los totales (subtotal, impuestos, total) se actualicen cada vez que el usuario cambia la cantidad de un producto. No tenemos un evento directo para eso, pero sí podemos observar si el contenedor de items cambió:
+
+```js
+// carrito.html — script inline
+function actualizarVistaCarritoPage() {
+  const carritoGuardado = JSON.parse(localStorage.getItem('carritoEcommerce') || '[]');
+  const totalPrecio = carritoGuardado.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+  const impuestos = totalPrecio * 0.21;
+
+  document.getElementById('subtotal-texto').textContent = `$${totalPrecio.toFixed(2)}`;
+  document.getElementById('impuestos-texto').textContent = `$${impuestos.toFixed(2)}`;
+  document.getElementById('carrito-total-texto').textContent = `$${(totalPrecio + impuestos).toFixed(2)}`;
+}
+
+// Observar el contenedor de items para detectar cuando se modifica
+const observer = new MutationObserver(actualizarVistaCarritoPage);
+observer.observe(contenedor, { childList: true, subtree: true });
+```
+
+- `MutationObserver`: API del navegador que "espía" un elemento del DOM. Cada vez que sus hijos cambian (cuando `renderizarCarrito` reconstruye los items), dispara la función que le pasamos.
+- `{ childList: true, subtree: true }`: Configuración del observer. `childList` observa hijos directos, `subtree` también observa descendientes más profundos.
+- `reduce((acc, item) => acc + ..., 0)`: Método de array más compacto que `forEach` para acumular un valor. Parte desde 0 y suma `precio × cantidad` de cada item.
+
+#### Mostrar/ocultar el resumen según si el carrito tiene items
+
+```js
+if (carritoGuardado.length > 0) {
+  resumen.style.display = 'block';   // muestra subtotal/impuestos/total
+  acciones.style.display = 'flex';   // muestra los botones
+} else {
+  resumen.style.display = 'none';    // oculta todo si el carrito está vacío
+  acciones.style.display = 'none';
+}
+```
+
+Manipular `style.display` directamente desde JS es la forma más directa de mostrar u ocultar bloques enteros. Alternativa equivalente: agregar/quitar una clase CSS `.oculto { display: none; }` con `classList.toggle`.
+
+---
+
+### Resumen de conceptos nuevos de esta sesión
+
+| Concepto | Dónde se usa | Para qué sirve |
+|---|---|---|
+| `window.cambiarCantidad` | `carrito.js` | Exponer función al scope global para usarla en `onclick=""` dentro de `innerHTML` |
+| `delta` como parámetro | `cambiarCantidad(id, delta)` | Un solo parámetro que determina la dirección del cambio: +1 o -1 |
+| `.closest(selector)` | `renderizarCarrito` | Subir por el árbol DOM hasta encontrar el ancestro con esa clase |
+| `.matches(selector)` | `renderizarCarrito` | Verificar si un elemento matchea un selector CSS en este momento |
+| `:focus-within` | CSS del carrito | Pseudo-clase que se activa cuando cualquier descendiente tiene el foco |
+| `.focus()` | `renderizarCarrito` | Programar el foco en un elemento para mantener `:focus-within` activo |
+| `MutationObserver` | `carrito.html` | Detectar cuando los hijos de un elemento cambian en el DOM |
+| `reduce()` | `carrito.html` | Acumular un valor recorriendo un array (como `forEach` pero retorna el resultado) |
+| `.catch()` encadenado | PATCH de stock | Capturar errores de `fetch` sin usar `try/catch`, sin bloquear la UI |
+| `style.display` desde JS | `carrito.html` | Mostrar u ocultar bloques dinámicamente según el estado de la app |
